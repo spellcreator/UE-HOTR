@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameplayTags/HRTags.h"
+#include "Player/HR_AbilityTargetingComponent.h"
 
 void AHR_PlayerController::SetupInputComponent()
 {
@@ -30,10 +31,19 @@ void AHR_PlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered ,this, &AHR_PlayerController::Look);
 	EnhancedInputComponent->BindAction(CameraBoomAction, ETriggerEvent::Triggered ,this, &AHR_PlayerController::Zoom);
 	
-	//Abilities
-	EnhancedInputComponent->BindAction(LMBAbilityAction, ETriggerEvent::Triggered ,this, &AHR_PlayerController::LMBAbility);
+	// Отмена прицеливания
+	EnhancedInputComponent->BindAction(CancelTargetingAction, ETriggerEvent::Started,
+		this, &AHR_PlayerController::CancelCurrentTargeting);
 	
-	EnhancedInputComponent->BindAction(ChargeAction, ETriggerEvent::Started ,this, &AHR_PlayerController::ChargeAbility);
+	
+	//Abilities
+	EnhancedInputComponent->BindAction(LMBAbilityAction, ETriggerEvent::Triggered,
+	this, &AHR_PlayerController::LMBAbility);
+	EnhancedInputComponent->BindAction(ChargeAction, ETriggerEvent::Started,
+		this, &AHR_PlayerController::ChargeAbility);
+	EnhancedInputComponent->BindAction(JumpAttackAction, ETriggerEvent::Started,
+		this, &AHR_PlayerController::JumpAttack);
+	
 }
 
 void AHR_PlayerController::BeginPlay()
@@ -44,6 +54,17 @@ void AHR_PlayerController::BeginPlay()
 	if (!PlayerPawn) return;
 	
 	CameraBoom = PlayerPawn->FindComponentByClass<USpringArmComponent>();
+	
+	// Targeting 
+	
+	TargetingComponent = NewObject<UHR_AbilityTargetingComponent>(PlayerPawn);
+	TargetingComponent->RegisterComponent();
+
+	// Подписываемся
+	TargetingComponent->OnTargetingConfirmed.AddDynamic(
+		this, &AHR_PlayerController::OnTargetingConfirmed);
+	TargetingComponent->OnTargetingCancelled.AddDynamic(
+		this, &AHR_PlayerController::OnTargetingCancelled);
 }
 
 void AHR_PlayerController::Jump()
@@ -102,24 +123,24 @@ void AHR_PlayerController::Zoom(const FInputActionValue& Value)
 	CameraBoom->TargetArmLength = NewLen;
 }
 
-void AHR_PlayerController::ActivateAbility(const FGameplayTag& AbilityTag) const
-{
-	if (!isAlive()) return;
-	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
-	if (!ASC) return;
-	
-	ASC->TryActivateAbilitiesByTag(AbilityTag.GetSingleTagContainer());
-}
-
 void AHR_PlayerController::LMBAbility()
 {
-	ActivateAbility(HRTags::HRAbilities::LMBAbility);
+	//ActivateAbility(HRTags::HRAbilities::LMBAbility);
+	
+	TryActivateOrBeginTargeting(HRTags::HRAbilities::LMBAbility);
 }
 
 void AHR_PlayerController::ChargeAbility()
 {
 	
-	ActivateAbility(HRTags::HRAbilities::ChargeAbility);
+	//ActivateAbility(HRTags::HRAbilities::ChargeAbility);
+	
+	TryActivateOrBeginTargeting(HRTags::HRAbilities::ChargeAbility);
+}
+
+void AHR_PlayerController::JumpAttack()
+{
+	TryActivateOrBeginTargeting(HRTags::HRAbilities::JumpAttack);
 }
 
 bool AHR_PlayerController::isAlive() const
@@ -127,4 +148,106 @@ bool AHR_PlayerController::isAlive() const
 	AHR_BaseCharacter* BaseCharacter = Cast<AHR_BaseCharacter>(GetPawn());
 	if (!IsValid(BaseCharacter)) return false;
 	return BaseCharacter->IsAlive();
+}
+
+void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag)
+{
+	if (!isAlive()) return;
+
+	// Если уже идёт прицеливание ЭТОЙ способности — подтверждаем
+	if (TargetingComponent->IsTargeting())
+	{
+		if (TargetingComponent->GetPendingAbilityTag() == AbilityTag)
+		{
+			TargetingComponent->ConfirmTargeting();
+		}
+		else
+		{
+			// Нажата ДРУГАЯ способность во время прицеливания — отменяем и начинаем новую
+			TargetingComponent->CancelTargeting();
+			TryActivateOrBeginTargeting(AbilityTag);
+		}
+		return;
+	}
+
+	// Находим способность в ASC
+	UAbilitySystemComponent* ASC = 
+		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
+	if (!ASC) return;
+
+	UHR_GameplayAbility* AbilityCDO = FindAbilityByTag(ASC, AbilityTag);
+	if (!AbilityCDO) return;
+
+	if (AbilityCDO->RequiresTargeting())
+	{
+		// Начинаем фазу прицеливания
+		TargetingComponent->BeginTargeting(AbilityTag, AbilityCDO);
+	}
+	else
+	{
+		// Instant — сразу активируем
+		ASC->TryActivateAbilitiesByTag(AbilityTag.GetSingleTagContainer());
+	}
+}
+
+void AHR_PlayerController::OnTargetingConfirmed(FVector TargetLocation)
+{
+	UAbilitySystemComponent* ASC = 
+		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
+	if (!ASC) return;
+
+	// Передаём TargetData в ASC через GameplayEvent
+	FGameplayEventData EventData;
+	EventData.Instigator = GetPawn();
+	EventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromLocations(
+		FGameplayAbilityTargetingLocationInfo(), // Source (можно заполнить)
+		MakeTargetLocationInfo(TargetLocation)
+	);
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		GetPawn(),
+		TargetingComponent->GetPendingAbilityTag(), // тег способности как Event тег
+		EventData
+	);
+    
+	// ИЛИ просто активируем, а способность сама заберёт локацию из компонента
+	// (зависит от архитектуры конкретной способности)
+	ASC->TryActivateAbilitiesByTag(
+		TargetingComponent->GetPendingAbilityTag().GetSingleTagContainer()
+	);
+}
+
+void AHR_PlayerController::OnTargetingCancelled()
+{
+	// Ничего специального — UI уже обновился через делегат
+}
+
+void AHR_PlayerController::CancelCurrentTargeting()
+{
+	if (TargetingComponent->IsTargeting())
+		TargetingComponent->CancelTargeting();
+}
+
+UHR_GameplayAbility* AHR_PlayerController::FindAbilityByTag(
+	UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const
+{
+	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	{
+		if (!IsValid(Spec.Ability)) continue;
+		if (Spec.Ability->GetAssetTags().HasTagExact(Tag))
+		{
+			return Cast<UHR_GameplayAbility>(Spec.Ability);
+		}
+	}
+	return nullptr;
+}
+
+// Утилита для TargetData
+FGameplayAbilityTargetingLocationInfo AHR_PlayerController::MakeTargetLocationInfo(
+	const FVector& Location) const
+{
+	FGameplayAbilityTargetingLocationInfo Info;
+	Info.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+	Info.LiteralTransform = FTransform(Location);
+	return Info;
 }

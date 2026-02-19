@@ -58,13 +58,13 @@ protected:
 	
 private:
 	
-	UPROPERTY(EditDefaultsOnly, Category= "HR|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category= "Crash|Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 	
-	UPROPERTY(EditDefaultsOnly, Category="HR|Effects")
+	UPROPERTY(EditDefaultsOnly, Category="Crash|Effects")
 	TSubclassOf<UGameplayEffect> InitializeAttributesEffect;
 	
-	UPROPERTY(EditDefaultsOnly, Category="HR|Effects")
+	UPROPERTY(EditDefaultsOnly, Category="Crash|Effects")
 	TSubclassOf<UGameplayEffect> ResetAttributesEffect;
 	
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Replicated)

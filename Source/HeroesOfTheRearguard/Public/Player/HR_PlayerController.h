@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/HR_GameplayAbility.h"
 #include "GameFramework/PlayerController.h"
 #include "HR_PlayerController.generated.h"
 
@@ -11,6 +13,7 @@ class USpringArmComponent;
 class UInputAction;
 struct FInputActionValue;
 struct FGameplayTag;
+class UHR_AbilityTargetingComponent;
 
 /**
  * 
@@ -38,6 +41,20 @@ protected:
 	float ArmMax = 800.f;
 	
 private:
+	
+	// Targeting 
+	
+	UPROPERTY(VisibleAnywhere, Category="Crash|Targeting")
+	TObjectPtr<UHR_AbilityTargetingComponent> TargetingComponent;
+	
+	void TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag);
+	void OnTargetingConfirmed(FVector TargetLocation);
+	void OnTargetingCancelled();
+	void CancelCurrentTargeting(); // Привязать на ПКМ / Escape
+	UHR_GameplayAbility* FindAbilityByTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const;
+	FGameplayAbilityTargetingLocationInfo MakeTargetLocationInfo(const FVector& Location) const;
+	
+	// Inputs 
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input") 
 	TArray<TObjectPtr<UInputMappingContext>> InputMappingContexts;
 	
@@ -49,11 +66,15 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> CameraBoomAction;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> CancelTargetingAction;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> LMBAbilityAction;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> ChargeAction;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> JumpAttackAction;
 	
+	bool isAlive() const;
 	void Jump();
 	void StopJumping();
 	
@@ -62,12 +83,11 @@ private:
 	
 	void Zoom(const FInputActionValue& Value);
 	
-	void ActivateAbility(const FGameplayTag& AbilityTag) const;
-	
 	void LMBAbility();
 	
 	void ChargeAbility();
 	
-	bool isAlive() const;
+	void JumpAttack();
+	
 	
 };

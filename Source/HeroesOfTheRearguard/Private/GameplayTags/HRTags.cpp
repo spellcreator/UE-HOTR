@@ -10,6 +10,7 @@ namespace HRTags
 		
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(LMBAbility, "HRTags.HRAbilities.LMBAbility", "Tag for Abilities on LMB")
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(ChargeAbility, "HRTags.HRAbilities.ChargeAbility", "Tag for Charge Ability")
+		UE_DEFINE_GAMEPLAY_TAG_COMMENT(JumpAttack, "HRTags.HRAbilities.JumpAttack", "Tag for JumpAttack Ability")
 	}
 	
 	namespace Events
