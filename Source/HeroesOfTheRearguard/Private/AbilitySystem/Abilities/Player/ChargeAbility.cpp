@@ -21,13 +21,15 @@ void UChargeAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	AHR_PlayerCharacter* Character = Cast<AHR_PlayerCharacter>(GetAvatarActorFromActorInfo());
-	if (!Character) 
+	if (!Character)
 	{
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-	FVector Direction = GetChargeDirection(Character);
 	
+	Character->LandedDelegate.AddDynamic(this, &ThisClass::OnCharacterLanded);
+    
+	FVector Direction = GetChargeDirection(Character);
 	ApplyChargeImpulse(Character, Direction);
 }
 

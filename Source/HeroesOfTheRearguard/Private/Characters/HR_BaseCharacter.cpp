@@ -17,6 +17,7 @@ void AHR_BaseCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(ThisClass, bAlive);
+	DOREPLIFETIME(ThisClass, bCharged);
 }
 
 UAbilitySystemComponent* AHR_BaseCharacter::GetAbilitySystemComponent() const

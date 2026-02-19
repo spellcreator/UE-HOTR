@@ -36,15 +36,15 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FASCInitialized OnASCInitialized;
 	
-	UFUNCTION(BlueprintCallable, Category = "HR|Death")
+	UFUNCTION(BlueprintCallable, Category = "Crash|Death")
 	virtual void HandleRespawn();
-	UFUNCTION(BlueprintCallable, Category = "HR|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Crash|Attributes")
 	void ResetAttributes();
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void RotateToTarget(AActor* RotateTarget);
 	
-	UPROPERTY(EditAnywhere, Category = "HR|AI")
+	UPROPERTY(EditAnywhere, Category = "Crash|AI")
 	float SearchRange{1000.f};
 	
 protected:	

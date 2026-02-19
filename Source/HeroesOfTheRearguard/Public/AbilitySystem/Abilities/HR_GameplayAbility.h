@@ -17,6 +17,6 @@ public:
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="HR|Debugs")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Debugs")
 	bool bDrawDebugs = false;
 };

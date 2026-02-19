@@ -34,7 +34,6 @@ void AHR_PlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(LMBAbilityAction, ETriggerEvent::Triggered ,this, &AHR_PlayerController::LMBAbility);
 	
 	EnhancedInputComponent->BindAction(ChargeAction, ETriggerEvent::Started ,this, &AHR_PlayerController::ChargeAbility);
-
 }
 
 void AHR_PlayerController::BeginPlay()
@@ -43,8 +42,7 @@ void AHR_PlayerController::BeginPlay()
 	
 	APawn* PlayerPawn = GetPawn();
 	if (!PlayerPawn) return;
-
-	// Ищем SpringArm у пешки
+	
 	CameraBoom = PlayerPawn->FindComponentByClass<USpringArmComponent>();
 }
 

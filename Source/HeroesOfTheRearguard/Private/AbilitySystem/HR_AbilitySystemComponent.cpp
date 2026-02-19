@@ -16,11 +16,14 @@ void UHR_AbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec
 void UHR_AbilitySystemComponent::OnRep_ActivateAbilities()
 {
 	Super::OnRep_ActivateAbilities();
-	
+    
 	FScopedAbilityListLock ActiveScopeLock(*this);
-	for (const FGameplayAbilitySpec AbilitySpec : GetActivatableAbilities())
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		HandleAutoActivateAbilities(AbilitySpec);
+		if (!AbilitySpec.IsActive())
+		{
+			HandleAutoActivateAbilities(AbilitySpec);
+		}
 	}
 }
 

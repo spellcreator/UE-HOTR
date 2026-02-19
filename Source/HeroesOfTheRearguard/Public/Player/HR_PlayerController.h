@@ -28,30 +28,30 @@ protected:
 	UPROPERTY()
 	TObjectPtr<USpringArmComponent> CameraBoom = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HR|Camera|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|Settings")
 	float ZoomSpeed = 50.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HR|Camera|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|Settings")
 	float ArmMin = 200.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="HR|Camera|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|Settings")
 	float ArmMax = 800.f;
 	
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "HR|Input") 
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input") 
 	TArray<TObjectPtr<UInputMappingContext>> InputMappingContexts;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "HR|Input|Movement") TObjectPtr<UInputAction> JumpAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> JumpAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "HR|Input|Movement") TObjectPtr<UInputAction> MoveAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> MoveAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "HR|Input|Movement") TObjectPtr<UInputAction> LookAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> LookAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "HR|Input|Movement") TObjectPtr<UInputAction> CameraBoomAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> CameraBoomAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "HR|Input|Abilities") TObjectPtr<UInputAction> LMBAbilityAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> LMBAbilityAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "HR|Input|Abilities") TObjectPtr<UInputAction> ChargeAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> ChargeAction;
 	
 	
 	void Jump();

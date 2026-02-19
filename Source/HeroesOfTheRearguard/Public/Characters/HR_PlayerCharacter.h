@@ -24,9 +24,9 @@ public:
 	
 private:
 	
-	UPROPERTY(VisibleAnywhere, Category="HR|Camera")
+	UPROPERTY(VisibleAnywhere, Category="Crash|Camera")
 	TObjectPtr<USpringArmComponent> SpringArmComp;
-	UPROPERTY(VisibleAnywhere, Category="HR|Camera")
+	UPROPERTY(VisibleAnywhere, Category="Crash|Camera")
 	TObjectPtr<UCameraComponent> CameraComponent;
 	
 };

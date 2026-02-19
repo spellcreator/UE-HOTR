@@ -26,27 +26,27 @@ public:
 	
 protected:	
 	// Сила рывка (импульс)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Charge Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crash|Charge")
 	float ChargeStrength = 2000.0f;
 
 	// Продолжительность рывка
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Charge Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crash|Charge")
 	float ChargeDuration = 0.3f;
 
 	// Высота рывка (Z-компонента)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Charge Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crash|Charge")
 	float ChargeZVelocity = 100.0f;
 
 	// Минимальная скорость персонажа для определения направления
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Charge Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crash|Charge")
 	float MinimumVelocityThreshold = 10.0f;
 
 	// Использовать направление камеры, если персонаж стоит на месте
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Charge Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crash|Charge")
 	bool bUseCameraDirectionWhenIdle = true;
 
 	// Кулдаун между рывками (в секундах)
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Charge Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crash|Charge")
 	float ChargeCooldown = 2.0f;
 
 private:

@@ -73,7 +73,12 @@ void AHR_PlayerCharacter::PossessedBy(AController* NewController)
 	
 	UHR_AttributeSet* HR_AttributeSet = Cast<UHR_AttributeSet>(GetAttributeSet());
 	if (!IsValid(HR_AttributeSet)) return;
-	GetAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(HR_AttributeSet->GetHealthAttribute()).AddUObject(this,&ThisClass::OnHealthChange);
+	
+	auto& Delegate = GetAbilitySystemComponent()
+	->GetGameplayAttributeValueChangeDelegate(HR_AttributeSet->GetHealthAttribute());
+    
+	Delegate.RemoveAll(this); // ✅ Сначала отписываемся
+	Delegate.AddUObject(this, &ThisClass::OnHealthChange); 
 }
 
 void AHR_PlayerCharacter::OnRep_PlayerState()
@@ -87,5 +92,10 @@ void AHR_PlayerCharacter::OnRep_PlayerState()
 	
 	UHR_AttributeSet* HR_AttributeSet = Cast<UHR_AttributeSet>(GetAttributeSet());
 	if (!IsValid(HR_AttributeSet)) return;
-	GetAbilitySystemComponent()->GetGameplayAttributeValueChangeDelegate(HR_AttributeSet->GetHealthAttribute()).AddUObject(this,&ThisClass::OnHealthChange);
+	
+	auto& Delegate = GetAbilitySystemComponent()
+		   ->GetGameplayAttributeValueChangeDelegate(HR_AttributeSet->GetHealthAttribute());
+    
+	Delegate.RemoveAll(this); // ✅ Сначала отписываемся
+	Delegate.AddUObject(this, &ThisClass::OnHealthChange);
 }

@@ -36,5 +36,12 @@ void UHR_AttributeChangeTask::EndTask()
 
 void UHR_AttributeChangeTask::AttributeChanged(const FOnAttributeChangeData& Data)
 {
-	OnAttributeChanged.Broadcast(Data.Attribute,Data.NewValue,Data.OldValue);
+	// Пропускаем если это репликация (не авторитетное изменение)
+	if (Data.GEModData == nullptr) 
+	{
+		// GEModData == nullptr означает что изменение пришло через репликацию
+		return;
+	}
+    
+	OnAttributeChanged.Broadcast(Data.Attribute, Data.NewValue, Data.OldValue);
 }
