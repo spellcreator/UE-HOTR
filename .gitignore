@@ -1,0 +1,36 @@
+# Visual Studio
+.vs/
+*.VC.db
+*.VC.opendb
+*.sln
+*.opensdf
+*.suo
+*.user
+*.userprefs
+
+# Unreal Engine Generated
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Build files
+Build/*
+!Build/Readme.txt
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Rider / JetBrains
+.idea/
+
+# Optional: ignore Content if only code repo
+Content/
+
+# Ignore plugins binaries
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
