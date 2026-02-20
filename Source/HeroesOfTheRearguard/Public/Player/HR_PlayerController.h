@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "HR_PlayerController.generated.h"
 
+class UHR_CameraInputComponent;
 class UHR_AbilityTargetActorComponent;
 class UInputMappingContext;
 class USpringArmComponent;
@@ -26,9 +27,8 @@ class HEROESOFTHEREARGUARD_API AHR_PlayerController : public APlayerController
 	
 protected:
 	virtual void SetupInputComponent() override;
-	
 	virtual void BeginPlay() override;
-	
+
 	UPROPERTY()
 	TObjectPtr<USpringArmComponent> CameraBoom = nullptr;
 	
@@ -42,58 +42,80 @@ protected:
 	float ArmMax = 800.f;
 	
 private:
-	
-	// Targeting 
-	
+
+	// ─── Компоненты ───────────────────────────────────────────────────────────
+
+	UPROPERTY(VisibleAnywhere, Category="Crash|Camera")
+	TObjectPtr<UHR_CameraInputComponent> CameraInputComponent;
+
 	UPROPERTY(VisibleAnywhere, Category="Crash|Targeting")
 	TObjectPtr<UHR_AbilityTargetingComponent> TargetingComponent;
+
+	// ─── Input Actions ────────────────────────────────────────────────────────
+
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input")
+	TArray<TObjectPtr<UInputMappingContext>> InputMappingContexts;
 	
-	void TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag);
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement")
+	TObjectPtr<UInputAction> JumpAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement")
+	TObjectPtr<UInputAction> MoveAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement")
+	TObjectPtr<UInputAction> LookAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement")
+	TObjectPtr<UInputAction> CameraBoomAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
+	TObjectPtr<UInputAction> RMBAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	TObjectPtr<UInputAction> LMBAbilityAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	TObjectPtr<UInputAction> ConfirmTargetingAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	TObjectPtr<UInputAction> CancelTargetingAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	TObjectPtr<UInputAction> ChargeAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	TObjectPtr<UInputAction> JumpAttackAction;
+
+	// ─── Handlers ─────────────────────────────────────────────────────────────
+
+	bool isAlive() const;
+
+	//Movement
+	void Jump();
+	void StopJumping();
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+
+	//AbilityTargeting
+	void ConfirmTargeting();
+	void CancelCurrentTargeting();
 	void OnTargetingConfirmed(FVector TargetLocation);
 	void OnTargetingCancelled();
-	void CancelCurrentTargeting(); // Привязать на ПКМ / Escape
+	
+	//Camera
+	void OnRMBPressed_Internal();
+	void OnRMBReleased_Internal();
+	void OnLMBPressed_Internal();
+	void OnLMBReleased_Internal();
+	void Zoom(const FInputActionValue& Value);
+
+	//Ability
+	void LMBAbility();
+	void ChargeAbility();
+	void JumpAttack();
+
+	void TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag);
 	UHR_GameplayAbility* FindAbilityByTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const;
 	FGameplayAbilityTargetingLocationInfo MakeTargetLocationInfo(const FVector& Location) const;
 	void ActivateAbilityByAssetTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const;
-
-	// Inputs 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input") 
-	TArray<TObjectPtr<UInputMappingContext>> InputMappingContexts;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> JumpAction;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> MoveAction;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> LookAction;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> CameraBoomAction;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> ConfirmTargetingAction;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> CancelTargetingAction;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> LMBAbilityAction;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> ChargeAction;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> JumpAttackAction;
-	
-	bool isAlive() const;
-	void Jump();
-	void StopJumping();
-	
-	void Move(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
-	
-	void Zoom(const FInputActionValue& Value);
-	
-	void ConfirmTargeting();
-	
-	void LMBAbility();
-	
-	void ChargeAbility();
-	
-	void JumpAttack();
-	
-	
 };

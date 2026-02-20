@@ -9,73 +9,111 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameplayTags/HRTags.h"
 #include "Player/HR_AbilityTargetingComponent.h"
+#include "Player/HR_CameraInputComponent.h"
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Setup
+// ─────────────────────────────────────────────────────────────────────────────
 
 void AHR_PlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	
-	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	if (!IsValid(InputSubsystem)) return;
-	
+
 	for (UInputMappingContext* Context : InputMappingContexts)
 	{
-		InputSubsystem->AddMappingContext(Context,0);
+		InputSubsystem->AddMappingContext(Context, 0);
 	}
-	
-	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-	if (!IsValid(EnhancedInputComponent)) return;
-	//Movement
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AHR_PlayerController::Jump);
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AHR_PlayerController::StopJumping);
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered ,this, &AHR_PlayerController::Move);
-	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered ,this, &AHR_PlayerController::Look);
-	EnhancedInputComponent->BindAction(CameraBoomAction, ETriggerEvent::Triggered ,this, &AHR_PlayerController::Zoom);
-	
-	// Подтверждение таргета — отдельная кнопка ЛКМ
-	EnhancedInputComponent->BindAction(ConfirmTargetingAction, ETriggerEvent::Started,
-		this, &AHR_PlayerController::ConfirmTargeting);
 
-	// Отмена
-	EnhancedInputComponent->BindAction(CancelTargetingAction, ETriggerEvent::Started,
-		this, &AHR_PlayerController::CancelCurrentTargeting);
-	
-	
-	//Abilities
-	EnhancedInputComponent->BindAction(LMBAbilityAction, ETriggerEvent::Triggered,
-	this, &AHR_PlayerController::LMBAbility);
-	EnhancedInputComponent->BindAction(ChargeAction, ETriggerEvent::Started,
-		this, &AHR_PlayerController::ChargeAbility);
-	EnhancedInputComponent->BindAction(JumpAttackAction, ETriggerEvent::Started,
-		this, &AHR_PlayerController::JumpAttack);
-	
+	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
+	if (!IsValid(EIC)) return;
+
+	// Movement
+	EIC->BindAction(JumpAction,       ETriggerEvent::Started,   this, &AHR_PlayerController::Jump);
+	EIC->BindAction(JumpAction,       ETriggerEvent::Completed, this, &AHR_PlayerController::StopJumping);
+	EIC->BindAction(MoveAction,       ETriggerEvent::Triggered, this, &AHR_PlayerController::Move);
+	EIC->BindAction(LookAction,       ETriggerEvent::Triggered, this, &AHR_PlayerController::Look);
+	EIC->BindAction(CameraBoomAction, ETriggerEvent::Triggered, this, &AHR_PlayerController::Zoom);
+
+	// Camera (ПКМ) — делегируем в компонент
+	EIC->BindAction(RMBAction, ETriggerEvent::Started,   this, &AHR_PlayerController::OnRMBPressed_Internal);
+	EIC->BindAction(RMBAction, ETriggerEvent::Completed, this, &AHR_PlayerController::OnRMBReleased_Internal);
+
+	// Abilities (ЛКМ) — Started/Completed для курсора, Triggered для способности
+	EIC->BindAction(LMBAbilityAction, ETriggerEvent::Started,   this, &AHR_PlayerController::OnLMBPressed_Internal);
+	EIC->BindAction(LMBAbilityAction, ETriggerEvent::Completed, this, &AHR_PlayerController::OnLMBReleased_Internal);
+	//EIC->BindAction(LMBAbilityAction, ETriggerEvent::Triggered, this, &AHR_PlayerController::LMBAbility);
+
+	// Targeting
+	EIC->BindAction(ConfirmTargetingAction, ETriggerEvent::Started, this, &AHR_PlayerController::ConfirmTargeting);
+	EIC->BindAction(CancelTargetingAction,  ETriggerEvent::Started, this, &AHR_PlayerController::CancelCurrentTargeting);
+
+	// Other Abilities
+	EIC->BindAction(ChargeAction,     ETriggerEvent::Started, this, &AHR_PlayerController::ChargeAbility);
+	EIC->BindAction(JumpAttackAction, ETriggerEvent::Started, this, &AHR_PlayerController::JumpAttack);
 }
 
 void AHR_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	APawn* PlayerPawn = GetPawn();
 	if (!PlayerPawn) return;
-	
+
 	CameraBoom = PlayerPawn->FindComponentByClass<USpringArmComponent>();
-	
-	// Targeting 
-	
+
+	// Создаём CameraInputComponent и вешаем на Pawn,
+	// чтобы он мог добраться до персонажа через GetOwner()
+	CameraInputComponent = NewObject<UHR_CameraInputComponent>(PlayerPawn);
+	CameraInputComponent->RegisterComponent();
+
+	// Targeting
 	TargetingComponent = NewObject<UHR_AbilityTargetingComponent>(PlayerPawn);
 	TargetingComponent->RegisterComponent();
+	TargetingComponent->OnTargetingConfirmed.AddDynamic(this, &AHR_PlayerController::OnTargetingConfirmed);
+	TargetingComponent->OnTargetingCancelled.AddDynamic(this, &AHR_PlayerController::OnTargetingCancelled);
 
-	// Подписываемся
-	TargetingComponent->OnTargetingConfirmed.AddDynamic(
-		this, &AHR_PlayerController::OnTargetingConfirmed);
-	TargetingComponent->OnTargetingCancelled.AddDynamic(
-		this, &AHR_PlayerController::OnTargetingCancelled);
+	// WoW default: курсор виден
+	bShowMouseCursor       = true;
+	bEnableClickEvents     = true;
+	bEnableMouseOverEvents = true;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Camera input — тонкие обёртки, вся логика в компоненте
+// ─────────────────────────────────────────────────────────────────────────────
+
+void AHR_PlayerController::OnRMBPressed_Internal()
+{
+	if (CameraInputComponent) CameraInputComponent->OnRMBPressed();
+}
+
+void AHR_PlayerController::OnRMBReleased_Internal()
+{
+	if (CameraInputComponent) CameraInputComponent->OnRMBReleased();
+}
+
+void AHR_PlayerController::OnLMBPressed_Internal()
+{
+	if (CameraInputComponent) CameraInputComponent->OnLMBPressed();
+}
+
+void AHR_PlayerController::OnLMBReleased_Internal()
+{
+	if (CameraInputComponent) CameraInputComponent->OnLMBReleased();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Movement
+// ─────────────────────────────────────────────────────────────────────────────
 
 void AHR_PlayerController::Jump()
 {
 	if (!IsValid(GetCharacter())) return;
 	if (!isAlive()) return;
-	
 	GetCharacter()->Jump();
 }
 
@@ -83,7 +121,6 @@ void AHR_PlayerController::StopJumping()
 {
 	if (!IsValid(GetCharacter())) return;
 	if (!isAlive()) return;
-	
 	GetCharacter()->StopJumping();
 }
 
@@ -91,22 +128,24 @@ void AHR_PlayerController::Move(const FInputActionValue& Value)
 {
 	if (!IsValid(GetPawn())) return;
 	if (!isAlive()) return;
-	
+
 	const FVector2D MovementVector = Value.Get<FVector2D>();
-	
-	const FRotator YawRotation(0,GetControlRotation().Yaw,0);
+
+	const FRotator YawRotation(0, GetControlRotation().Yaw, 0);
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	
+	const FVector RightDirection   = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
 	GetPawn()->AddMovementInput(ForwardDirection, MovementVector.Y);
-	GetPawn()->AddMovementInput(RightDirection, MovementVector.X);
+	GetPawn()->AddMovementInput(RightDirection,   MovementVector.X);
 }
 
 void AHR_PlayerController::Look(const FInputActionValue& Value)
 {
+	// Гейтинг через компонент — камера вращается только при зажатой ПКМ или ЛКМ
+	if (!CameraInputComponent || !CameraInputComponent->CanRotateCamera()) return;
 	if (!isAlive()) return;
+
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
-	
 	AddYawInput(LookAxisVector.X);
 	AddPitchInput(LookAxisVector.Y);
 }
@@ -117,43 +156,80 @@ void AHR_PlayerController::Zoom(const FInputActionValue& Value)
 	if (!CameraBoom) return;
 
 	const float Axis = Value.Get<float>();
-
 	const float NewLen = FMath::Clamp(
 		CameraBoom->TargetArmLength - Axis * ZoomSpeed,
 		ArmMin,
 		ArmMax
 	);
-
 	CameraBoom->TargetArmLength = NewLen;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Targeting
+// ─────────────────────────────────────────────────────────────────────────────
 
 void AHR_PlayerController::ConfirmTargeting()
 {
 	if (!TargetingComponent->IsTargeting()) return;
 
-	UAbilitySystemComponent* ASC = 
+	UAbilitySystemComponent* ASC =
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
 	if (!ASC) return;
 
 	const FGameplayTag Tag = TargetingComponent->GetPendingAbilityTag();
-    
-	TargetingComponent->ConfirmTargeting(); // Скрывает декаль, бродкастит локацию
-    
+	TargetingComponent->ConfirmTargeting();
 	ActivateAbilityByAssetTag(ASC, Tag);
 }
 
+void AHR_PlayerController::CancelCurrentTargeting()
+{
+	if (TargetingComponent->IsTargeting())
+		TargetingComponent->CancelTargeting();
+}
+
+void AHR_PlayerController::OnTargetingConfirmed(FVector TargetLocation)
+{
+	UAbilitySystemComponent* ASC =
+		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
+	if (!ASC) return;
+
+	FGameplayEventData EventData;
+	EventData.Instigator = GetPawn();
+	EventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromLocations(
+		FGameplayAbilityTargetingLocationInfo(),
+		MakeTargetLocationInfo(TargetLocation)
+	);
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		GetPawn(),
+		TargetingComponent->GetPendingAbilityTag(),
+		EventData
+	);
+
+	ActivateAbilityByAssetTag(ASC, TargetingComponent->GetPendingAbilityTag());
+}
+
+void AHR_PlayerController::OnTargetingCancelled()
+{
+	// Визуал уже скрыт компонентом — ничего дополнительного
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Abilities
+// ─────────────────────────────────────────────────────────────────────────────
+
 void AHR_PlayerController::LMBAbility()
 {
-	//ActivateAbility(HRTags::HRAbilities::LMBAbility);
-	
+	// Triggered биндинг срабатывает пока кнопка зажата.
+	// Способность активируем только если курсор скрыт (ЛКМ именно зажата,
+	// а не используется как обычный клик по UI)
+	if (!CameraInputComponent || !CameraInputComponent->CanRotateCamera()) return;
+
 	TryActivateOrBeginTargeting(HRTags::HRAbilities::LMBAbility);
 }
 
 void AHR_PlayerController::ChargeAbility()
 {
-	
-	//ActivateAbility(HRTags::HRAbilities::ChargeAbility);
-	
 	TryActivateOrBeginTargeting(HRTags::HRAbilities::ChargeAbility);
 }
 
@@ -162,26 +238,17 @@ void AHR_PlayerController::JumpAttack()
 	TryActivateOrBeginTargeting(HRTags::HRAbilities::JumpAttack);
 }
 
-bool AHR_PlayerController::isAlive() const
-{
-	AHR_BaseCharacter* BaseCharacter = Cast<AHR_BaseCharacter>(GetPawn());
-	if (!IsValid(BaseCharacter)) return false;
-	return BaseCharacter->IsAlive();
-}
-
 void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag)
 {
 	if (!isAlive()) return;
 
-	UAbilitySystemComponent* ASC = 
+	UAbilitySystemComponent* ASC =
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
 	if (!ASC) return;
 
-	// Если идёт прицеливание — любая способность отменяет его и начинает своё
 	if (TargetingComponent->IsTargeting())
 	{
 		TargetingComponent->CancelTargeting();
-		// Если нажали ту же самую — просто отменяем (toggle)
 		if (TargetingComponent->GetPendingAbilityTag() == AbilityTag) return;
 	}
 
@@ -198,42 +265,15 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& Abili
 	}
 }
 
-void AHR_PlayerController::OnTargetingConfirmed(FVector TargetLocation)
+// ─────────────────────────────────────────────────────────────────────────────
+// Utils
+// ─────────────────────────────────────────────────────────────────────────────
+
+bool AHR_PlayerController::isAlive() const
 {
-	UAbilitySystemComponent* ASC = 
-		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
-	if (!ASC) return;
-
-	// Передаём TargetData в ASC через GameplayEvent
-	FGameplayEventData EventData;
-	EventData.Instigator = GetPawn();
-	EventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromLocations(
-		FGameplayAbilityTargetingLocationInfo(), // Source (можно заполнить)
-		MakeTargetLocationInfo(TargetLocation)
-	);
-
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-		GetPawn(),
-		TargetingComponent->GetPendingAbilityTag(), // тег способности как Event тег
-		EventData
-	);
-    
-	// ИЛИ просто активируем, а способность сама заберёт локацию из компонента
-	// (зависит от архитектуры конкретной способности)
-	ASC->TryActivateAbilitiesByTag(
-		TargetingComponent->GetPendingAbilityTag().GetSingleTagContainer()
-	);
-}
-
-void AHR_PlayerController::OnTargetingCancelled()
-{
-	// Ничего специального — UI уже обновился через делегат
-}
-
-void AHR_PlayerController::CancelCurrentTargeting()
-{
-	if (TargetingComponent->IsTargeting())
-		TargetingComponent->CancelTargeting();
+	AHR_BaseCharacter* BaseCharacter = Cast<AHR_BaseCharacter>(GetPawn());
+	if (!IsValid(BaseCharacter)) return false;
+	return BaseCharacter->IsAlive();
 }
 
 UHR_GameplayAbility* AHR_PlayerController::FindAbilityByTag(
@@ -243,24 +283,22 @@ UHR_GameplayAbility* AHR_PlayerController::FindAbilityByTag(
 	{
 		if (!IsValid(Spec.Ability)) continue;
 		if (Spec.Ability->GetAssetTags().HasTagExact(Tag))
-		{
 			return Cast<UHR_GameplayAbility>(Spec.Ability);
-		}
 	}
 	return nullptr;
 }
 
-// Утилита для TargetData
 FGameplayAbilityTargetingLocationInfo AHR_PlayerController::MakeTargetLocationInfo(
 	const FVector& Location) const
 {
 	FGameplayAbilityTargetingLocationInfo Info;
-	Info.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
+	Info.LocationType     = EGameplayAbilityTargetingLocationType::LiteralTransform;
 	Info.LiteralTransform = FTransform(Location);
 	return Info;
 }
 
-void AHR_PlayerController::ActivateAbilityByAssetTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const
+void AHR_PlayerController::ActivateAbilityByAssetTag(
+	UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const
 {
 	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
 	{
