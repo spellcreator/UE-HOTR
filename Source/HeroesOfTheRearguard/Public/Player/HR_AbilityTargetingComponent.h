@@ -60,15 +60,6 @@ public:
      //* Материал для направленной способности #2#  
     UPROPERTY(EditDefaultsOnly, Category="Crash|Targeting|Visuals")
     TObjectPtr<UMaterialInterface> DirectionalDecalMaterial;
-    
-
-    // Цвет декали в нормальном состоянии #1#
-    UPROPERTY(EditDefaultsOnly, Category="Crash|Targeting|Visuals")
-    FLinearColor ValidTargetColor = FLinearColor(0.f, 0.8f, 1.f, 0.6f);
-
-    // Цвет декали если цель вне зоны или недоступна #1#
-    UPROPERTY(EditDefaultsOnly, Category="Crash|Targeting|Visuals")
-    FLinearColor InvalidTargetColor = FLinearColor(1.f, 0.2f, 0.f, 0.6f);
    
 
 private:
@@ -80,7 +71,6 @@ private:
     float CurrentRange = 1200.f;
 
     FVector CurrentTargetLocation = FVector::ZeroVector;
-    bool bTargetIsValid = false;
 
     UPROPERTY()
     TObjectPtr<UDecalComponent> TargetingDecal;
@@ -97,7 +87,6 @@ private:
 	void ShowDecal(float Radius, EHR_AbilityTargetingType Type, UMaterialInterface* Material);
     void HideDecal();
     void UpdateDecalTransform(const FVector& Location, float Radius);
-    void UpdateDecalColor(bool bValid);
     
     
     bool GetGroundLocationUnderCursor(FVector& OutLocation) const;

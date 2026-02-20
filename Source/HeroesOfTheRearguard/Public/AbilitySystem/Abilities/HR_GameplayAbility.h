@@ -31,7 +31,7 @@ public:
 	/** Радиус AOE (для GroundTarget / DirectionalArc) */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Targeting",
 			  meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
-	float TargetingRadius = 300.f;
+	float AOERadius = 300.f;
 
 	/** Дальность прицеливания */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Targeting",
@@ -47,12 +47,4 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Crash|Targeting",
 			  meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
 	TObjectPtr<UMaterialInterface> TargetingDecalMaterial;
-
-	UPROPERTY(EditDefaultsOnly, Category="Crash|Targeting",
-			  meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
-	FLinearColor TargetingValidColor = FLinearColor(0.f, 0.8f, 1.f, 0.6f);
-
-	UPROPERTY(EditDefaultsOnly, Category="Crash|Targeting",
-			  meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
-	FLinearColor TargetingInvalidColor = FLinearColor(1.f, 0.2f, 0.f, 0.6f);
 };

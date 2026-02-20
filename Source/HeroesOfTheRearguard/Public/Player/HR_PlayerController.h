@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "HR_PlayerController.generated.h"
 
+class UHR_AbilityTargetActorComponent;
 class UInputMappingContext;
 class USpringArmComponent;
 class UInputAction;
@@ -53,7 +54,8 @@ private:
 	void CancelCurrentTargeting(); // Привязать на ПКМ / Escape
 	UHR_GameplayAbility* FindAbilityByTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const;
 	FGameplayAbilityTargetingLocationInfo MakeTargetLocationInfo(const FVector& Location) const;
-	
+	void ActivateAbilityByAssetTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const;
+
 	// Inputs 
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input") 
 	TArray<TObjectPtr<UInputMappingContext>> InputMappingContexts;
@@ -65,6 +67,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> LookAction;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement") TObjectPtr<UInputAction> CameraBoomAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> ConfirmTargetingAction;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities") TObjectPtr<UInputAction> CancelTargetingAction;
 	
@@ -82,6 +86,8 @@ private:
 	void Look(const FInputActionValue& Value);
 	
 	void Zoom(const FInputActionValue& Value);
+	
+	void ConfirmTargeting();
 	
 	void LMBAbility();
 	

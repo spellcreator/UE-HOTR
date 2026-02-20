@@ -31,7 +31,11 @@ void AHR_PlayerController::SetupInputComponent()
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered ,this, &AHR_PlayerController::Look);
 	EnhancedInputComponent->BindAction(CameraBoomAction, ETriggerEvent::Triggered ,this, &AHR_PlayerController::Zoom);
 	
-	// Отмена прицеливания
+	// Подтверждение таргета — отдельная кнопка ЛКМ
+	EnhancedInputComponent->BindAction(ConfirmTargetingAction, ETriggerEvent::Started,
+		this, &AHR_PlayerController::ConfirmTargeting);
+
+	// Отмена
 	EnhancedInputComponent->BindAction(CancelTargetingAction, ETriggerEvent::Started,
 		this, &AHR_PlayerController::CancelCurrentTargeting);
 	
@@ -123,6 +127,21 @@ void AHR_PlayerController::Zoom(const FInputActionValue& Value)
 	CameraBoom->TargetArmLength = NewLen;
 }
 
+void AHR_PlayerController::ConfirmTargeting()
+{
+	if (!TargetingComponent->IsTargeting()) return;
+
+	UAbilitySystemComponent* ASC = 
+		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
+	if (!ASC) return;
+
+	const FGameplayTag Tag = TargetingComponent->GetPendingAbilityTag();
+    
+	TargetingComponent->ConfirmTargeting(); // Скрывает декаль, бродкастит локацию
+    
+	ActivateAbilityByAssetTag(ASC, Tag);
+}
+
 void AHR_PlayerController::LMBAbility()
 {
 	//ActivateAbility(HRTags::HRAbilities::LMBAbility);
@@ -154,39 +173,28 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& Abili
 {
 	if (!isAlive()) return;
 
-	// Если уже идёт прицеливание ЭТОЙ способности — подтверждаем
-	if (TargetingComponent->IsTargeting())
-	{
-		if (TargetingComponent->GetPendingAbilityTag() == AbilityTag)
-		{
-			TargetingComponent->ConfirmTargeting();
-		}
-		else
-		{
-			// Нажата ДРУГАЯ способность во время прицеливания — отменяем и начинаем новую
-			TargetingComponent->CancelTargeting();
-			TryActivateOrBeginTargeting(AbilityTag);
-		}
-		return;
-	}
-
-	// Находим способность в ASC
 	UAbilitySystemComponent* ASC = 
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
 	if (!ASC) return;
+
+	// Если идёт прицеливание — любая способность отменяет его и начинает своё
+	if (TargetingComponent->IsTargeting())
+	{
+		TargetingComponent->CancelTargeting();
+		// Если нажали ту же самую — просто отменяем (toggle)
+		if (TargetingComponent->GetPendingAbilityTag() == AbilityTag) return;
+	}
 
 	UHR_GameplayAbility* AbilityCDO = FindAbilityByTag(ASC, AbilityTag);
 	if (!AbilityCDO) return;
 
 	if (AbilityCDO->RequiresTargeting())
 	{
-		// Начинаем фазу прицеливания
 		TargetingComponent->BeginTargeting(AbilityTag, AbilityCDO);
 	}
 	else
 	{
-		// Instant — сразу активируем
-		ASC->TryActivateAbilitiesByTag(AbilityTag.GetSingleTagContainer());
+		ActivateAbilityByAssetTag(ASC, AbilityTag);
 	}
 }
 
@@ -250,4 +258,17 @@ FGameplayAbilityTargetingLocationInfo AHR_PlayerController::MakeTargetLocationIn
 	Info.LocationType = EGameplayAbilityTargetingLocationType::LiteralTransform;
 	Info.LiteralTransform = FTransform(Location);
 	return Info;
+}
+
+void AHR_PlayerController::ActivateAbilityByAssetTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const
+{
+	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	{
+		if (!IsValid(Spec.Ability)) continue;
+		if (Spec.Ability->GetAssetTags().HasTagExact(Tag))
+		{
+			ASC->TryActivateAbility(Spec.Handle);
+			return;
+		}
+	}
 }

@@ -40,16 +40,13 @@ void UHR_AbilityTargetingComponent::BeginTargeting(const FGameplayTag& AbilityTa
     PendingAbilityTag = AbilityTag;
     
     CurrentTargetingType = Ability->TargetingType;
-    CurrentRadius = Ability->TargetingRadius;
+    CurrentRadius = Ability->AOERadius;
     CurrentRange = Ability->TargetingRange;
     
     // Применяем визуал
     UMaterialInterface* Mat = IsValid(Ability->TargetingDecalMaterial)
         ? Ability->TargetingDecalMaterial
         : GroundTargetDecalMaterial;
-
-    ValidTargetColor = Ability->TargetingValidColor;
-    InvalidTargetColor = Ability->TargetingInvalidColor;
 
     ShowDecal(CurrentRadius, CurrentTargetingType, Mat);
     UpdateDecalTransform(CurrentTargetLocation, CurrentRadius);
@@ -61,15 +58,13 @@ void UHR_AbilityTargetingComponent::ConfirmTargeting()
 {
     if (!bIsTargeting) return;
 
-    if (bTargetIsValid)
-    {
-        const FVector ConfirmedLocation = CurrentTargetLocation;
-        HideDecal();
-        bIsTargeting = false;
-        SetComponentTickEnabled(false);
+    
+    const FVector ConfirmedLocation = CurrentTargetLocation;
+    HideDecal();
+    bIsTargeting = false;
+    SetComponentTickEnabled(false);
         
-        OnTargetingConfirmed.Broadcast(ConfirmedLocation);
-    }
+    OnTargetingConfirmed.Broadcast(ConfirmedLocation);
 }
 
 void UHR_AbilityTargetingComponent::CancelTargeting()
@@ -87,36 +82,36 @@ void UHR_AbilityTargetingComponent::CancelTargeting()
 void UHR_AbilityTargetingComponent::UpdateGroundTargetLocation()
 {
     FVector HitLocation;
-    if (GetGroundLocationUnderCursor(HitLocation))
-    {
-        // Ограничиваем по дальности от персонажа
-        const AActor* Owner = GetOwner();
-        if (IsValid(Owner))
-        {
-            const FVector OwnerLoc = Owner->GetActorLocation();
-            const FVector ToTarget = HitLocation - OwnerLoc;
-            if (ToTarget.Size2D() > CurrentRange)
-            {
-                HitLocation = OwnerLoc + ToTarget.GetSafeNormal2D() * CurrentRange;
-                // Переопределяем Z через трассировку
-                FHitResult RangeClampHit;
-                FVector Start = HitLocation + FVector(0,0,500);
-                FVector End = HitLocation - FVector(0,0,1000);
-                if (GetWorld()->LineTraceSingleByChannel(RangeClampHit, Start, End, ECC_WorldStatic))
-                    HitLocation = RangeClampHit.Location;
-                
-                bTargetIsValid = false;
-            }
-            else
-            {
-                bTargetIsValid = true;
-            }
-        }
+    if (!GetGroundLocationUnderCursor(HitLocation)) return;
 
-        CurrentTargetLocation = HitLocation;
-        UpdateDecalTransform(HitLocation, CurrentRadius);
-        UpdateDecalColor(bTargetIsValid);
+    const AActor* Owner = GetOwner();
+    if (!IsValid(Owner)) return;
+
+    const FVector OwnerLoc = Owner->GetActorLocation();
+    const FVector ToTarget = HitLocation - OwnerLoc;
+
+    // Просто зажимаем по дальности, без смены цвета
+    if (ToTarget.Size2D() > CurrentRange)
+    {
+        const FVector ClampedXY = OwnerLoc + ToTarget.GetSafeNormal2D() * CurrentRange;
+
+        FHitResult RangeHit;
+        FCollisionQueryParams Params;
+        Params.AddIgnoredActor(Owner);
+
+        bool bHit = GetWorld()->LineTraceSingleByChannel(
+            RangeHit,
+            ClampedXY + FVector(0, 0, 300.f),
+            ClampedXY - FVector(0, 0, 1000.f),
+            ECC_WorldStatic,
+            Params
+        );
+
+        HitLocation = bHit ? RangeHit.ImpactPoint + FVector(0, 0, 5.f) : ClampedXY;
     }
+
+    CurrentTargetLocation = HitLocation;
+    UpdateDecalTransform(CurrentTargetLocation, CurrentRadius);
 }
 
 void UHR_AbilityTargetingComponent::UpdateDirectionalArc()
@@ -134,10 +129,8 @@ void UHR_AbilityTargetingComponent::UpdateDirectionalArc()
     // Ставим декаль на дальность CurrentRange от персонажа
     const FVector DecalLoc = OwnerLoc + Direction * (CurrentRange * 0.5f);
     CurrentTargetLocation = OwnerLoc + Direction * CurrentRange;
-    bTargetIsValid = true;
-
+    
     UpdateDecalTransform(DecalLoc, CurrentRadius);
-    UpdateDecalColor(true);
 }
 
 bool UHR_AbilityTargetingComponent::GetGroundLocationUnderCursor(FVector& OutLocation) const
@@ -211,25 +204,6 @@ void UHR_AbilityTargetingComponent::UpdateDecalTransform(const FVector& Location
     if (!IsValid(TargetingDecal)) return;
     TargetingDecal->SetWorldLocation(Location + FVector(0, 0, 50.f));
     TargetingDecal->DecalSize = FVector(128.f, Radius, Radius);
-}
-
-void UHR_AbilityTargetingComponent::UpdateDecalColor(bool bValid)
-{
-    if (!IsValid(TargetingDecal)) return;
-
-    UMaterialInstanceDynamic* DynMat = 
-        Cast<UMaterialInstanceDynamic>(TargetingDecal->GetDecalMaterial());
-    
-    if (!IsValid(DynMat))
-    {
-        DynMat = TargetingDecal->CreateDynamicMaterialInstance();
-    }
-
-    if (IsValid(DynMat))
-    {
-        DynMat->SetVectorParameterValue(TEXT("Color"), 
-            bValid ? ValidTargetColor : InvalidTargetColor);
-    }
 }
 
 APlayerController* UHR_AbilityTargetingComponent::GetPlayerController() const
