@@ -14,7 +14,14 @@ class HEROESOFTHEREARGUARD_API UHR_CameraInputComponent : public UActorComponent
 
 public:
 	UHR_CameraInputComponent();
+	
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+		FActorComponentTickFunction* ThisTickFunction) override;
 
+	// ─── Инициализация ────────────────────────────────────────────────────────
+
+	/** Вызвать из BeginPlay контроллера после получения Pawn */
+	void InitializeDefaultState();
 
 	// ─── Вызывается из контроллера при инпуте ────────────────────────────────
 
@@ -29,6 +36,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Crash|Camera")
 	void OnLMBReleased();
+	bool IsSoftLookActive() const;
 
 	/**
 	 * Контроллер вызывает это в Look() перед тем как применить AddYawInput/AddPitchInput.
@@ -37,20 +45,49 @@ public:
 	UFUNCTION(BlueprintPure, Category="Crash|Camera")
 	bool CanRotateCamera() const;
 	
+	// ─── Настройки SoftLook ───────────────────────────────────────────────────
+
+	/** Скорость возврата камеры за спину персонажа после отпускания ЛКМ */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|SoftLook")
+	float CameraReturnSpeed = 5.f;
+
+	/** Порог в градусах — при таком отклонении считаем возврат завершённым */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|SoftLook")
+	float CameraReturnThreshold = 0.5f;
+	
+	/** Нужно ли возвращать камеру за спину игроку */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|SoftLook")
+	bool bIsNeedReturn = false;
+	
 private:
 
 	bool bRMBHeld = false;
 	bool bLMBHeld = false;
+	bool bLMBHeldFreeze = false;
+	bool bSoftLookReturning = false; // идёт плавный возврат после отпускания ЛКМ
 
 	/** Позиция мыши до скрытия — восстанавливаем при показе */
 	//FVector2D SavedMousePosition = FVector2D::ZeroVector;
-	FVector2D CurrentCursorPosition;
+	FVector CurrentCursorPosition;
 
-	// ─── Внутренняя логика ────────────────────────────────────────────────────
+	// ─── Режимы ориентации ────────────────────────────────────────────────────
+
+	/** Default / HardLook / RMB: персонаж мгновенно следует за yaw камеры */
+	void ApplyHardLook();
+
+	/** SoftLook held: форвард персонажа заморожен */
+	void ApplySoftLookFreeze();
+
+	/** SoftLook return: включаем плавную интерполяцию к камере */
+	void BeginSoftLookReturn();
+
+	/** Вызывается из Tick когда поворот завершён — снэп обратно в HardLook */
+	void FinishSoftLookReturn();
+
+	// ─── Курсор / InputMode ───────────────────────────────────────────────────
 
 	void HideCursor();
 	void ShowCursor();
-
 	/** Персонаж смотрит туда же куда камера (ПКМ-режим) */
 	void EnableCharacterFollowCamera();
 

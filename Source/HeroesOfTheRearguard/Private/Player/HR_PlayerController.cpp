@@ -131,7 +131,15 @@ void AHR_PlayerController::Move(const FInputActionValue& Value)
 
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
-	const FRotator YawRotation(0, GetControlRotation().Yaw, 0);
+	// SoftLook (ЛКМ зажата или идёт возврат): берём замороженный форвард персонажа,
+	// чтобы он продолжал бежать в ту же сторону независимо от поворота камеры.
+	// HardLook / Default: берём форвард камеры как обычно.
+	const bool bUseFrozenForward = CameraInputComponent && CameraInputComponent->IsSoftLookActive();
+	const float YawSource = bUseFrozenForward
+		? GetPawn()->GetActorRotation().Yaw
+		: GetControlRotation().Yaw;
+
+	const FRotator YawRotation(0, YawSource, 0);
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection   = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
