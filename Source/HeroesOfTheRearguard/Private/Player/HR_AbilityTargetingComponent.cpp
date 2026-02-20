@@ -4,6 +4,8 @@
 #include "Components/DecalComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "Player/HR_PlayerController.h"
 
 UHR_AbilityTargetingComponent::UHR_AbilityTargetingComponent()
 {
@@ -36,20 +38,21 @@ void UHR_AbilityTargetingComponent::BeginTargeting(const FGameplayTag& AbilityTa
 
     bIsTargeting = true;
     PendingAbilityTag = AbilityTag;
+    
     CurrentTargetingType = Ability->TargetingType;
     CurrentRadius = Ability->TargetingRadius;
     CurrentRange = Ability->TargetingRange;
+    
+    // Применяем визуал
+    UMaterialInterface* Mat = IsValid(Ability->TargetingDecalMaterial)
+        ? Ability->TargetingDecalMaterial
+        : GroundTargetDecalMaterial;
 
-    // Применяем визуал из способности
-    if (IsValid(Ability->TargetingDecalMaterial))
-    {
-        ShowDecal(CurrentRadius, CurrentTargetingType, Ability->TargetingDecalMaterial);
-    }
-    else
-    {
-        // Фолбэк на дефолтный материал компонента
-        ShowDecal(CurrentRadius, CurrentTargetingType, Ability->TargetingDecalMaterial);
-    }
+    ValidTargetColor = Ability->TargetingValidColor;
+    InvalidTargetColor = Ability->TargetingInvalidColor;
+
+    ShowDecal(CurrentRadius, CurrentTargetingType, Mat);
+    UpdateDecalTransform(CurrentTargetLocation, CurrentRadius);
 
     SetComponentTickEnabled(true);
 }
@@ -67,7 +70,6 @@ void UHR_AbilityTargetingComponent::ConfirmTargeting()
         
         OnTargetingConfirmed.Broadcast(ConfirmedLocation);
     }
-    // Если цель невалидна — не подтверждаем, даём игроку поправить
 }
 
 void UHR_AbilityTargetingComponent::CancelTargeting()
@@ -140,17 +142,39 @@ void UHR_AbilityTargetingComponent::UpdateDirectionalArc()
 
 bool UHR_AbilityTargetingComponent::GetGroundLocationUnderCursor(FVector& OutLocation) const
 {
-    APlayerController* PC = GetPlayerController();
-    if (!PC) return false;
+    AHR_PlayerController* PC = Cast<AHR_PlayerController>(GetPlayerController());
+    if (!IsValid(PC)) return false;
+
+    FVector MouseWorldLocation, MouseWorldDirection;
+    if (!PC->DeprojectMousePositionToWorld(MouseWorldLocation, MouseWorldDirection))
+        return false;
+
+    // Трейс только по WorldStatic, персонажи игнорируются
+    FCollisionQueryParams Params;
+    Params.AddIgnoredActor(GetOwner());
+
+    // Игнорируем все Pawn'ы на сцене
+    TArray<AActor*> AllPawns;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), APawn::StaticClass(), AllPawns);
+    Params.AddIgnoredActors(AllPawns);
 
     FHitResult HitResult;
-    if (PC->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_WorldStatic), 
-                                              true, HitResult))
-    {
-        OutLocation = HitResult.Location;
-        return true;
-    }
-    return false;
+    const FVector TraceStart = MouseWorldLocation;
+    const FVector TraceEnd   = MouseWorldLocation + MouseWorldDirection * 10000.f;
+
+    bool bHit = GetWorld()->LineTraceSingleByChannel(
+        HitResult,
+        TraceStart,
+        TraceEnd,
+        ECC_WorldStatic, // Только статик, павны не участвуют
+        Params
+    );
+
+    if (!bHit) return false;
+
+    OutLocation = HitResult.ImpactPoint;
+    OutLocation.Z += 5.f;
+    return true;
 }
 
 void UHR_AbilityTargetingComponent::ShowDecal(float Radius, EHR_AbilityTargetingType Type, UMaterialInterface* Material)
@@ -212,17 +236,4 @@ APlayerController* UHR_AbilityTargetingComponent::GetPlayerController() const
 {
     const APawn* Pawn = Cast<APawn>(GetOwner());
     return Pawn ? Cast<APlayerController>(Pawn->GetController()) : nullptr;
-}
-
-
-
-
-void UHR_AbilityTargetingComponent::GroundLocation()
-{
-    FHitResult HitResult;
-    FVector StartLocation, EndLocation;
-    
-    APlayerController* PC = GetPlayerController();
-    PC->GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
-    PC->DeprojectMousePositionToWorld(StartLocation, EndLocation);
 }

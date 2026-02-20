@@ -10,6 +10,7 @@ AHR_BaseCharacter::AHR_BaseCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 	
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	GetMesh()->bReceivesDecals = false;
 }
 
 void AHR_BaseCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

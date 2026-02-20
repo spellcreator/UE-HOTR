@@ -89,8 +89,9 @@ private:
     TObjectPtr<UDecalComponent> RangeDecal; // Опционально: показывать дальность
 
     APlayerController* GetPlayerController() const;
+	
 
-    void UpdateGroundTargetLocation();
+	void UpdateGroundTargetLocation();
     void UpdateDirectionalArc();
 	
 	void ShowDecal(float Radius, EHR_AbilityTargetingType Type, UMaterialInterface* Material);
@@ -98,10 +99,7 @@ private:
     void UpdateDecalTransform(const FVector& Location, float Radius);
     void UpdateDecalColor(bool bValid);
     
-    /** Трассировка под курсор мыши для определения точки на земле */
+    
     bool GetGroundLocationUnderCursor(FVector& OutLocation) const;
-
 	
-	void GroundLocation();
-
 };
