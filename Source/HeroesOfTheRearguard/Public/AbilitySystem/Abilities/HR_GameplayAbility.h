@@ -36,7 +36,10 @@ public:
 	/** Дальность прицеливания */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Targeting",
 			  meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
-	float TargetingRange = 1200.f;
+	float TargetingMaxRange = 1200.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Targeting",
+			  meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
+	float TargetingMinRange = 0.f;
 
 	bool RequiresTargeting() const
 	{

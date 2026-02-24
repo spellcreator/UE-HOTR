@@ -41,7 +41,8 @@ void UHR_AbilityTargetingComponent::BeginTargeting(const FGameplayTag& AbilityTa
     
     CurrentTargetingType = Ability->TargetingType;
     CurrentTargetingRadius = Ability->AOERadius;
-    CurrentTargetingCastRange = Ability->TargetingRange;
+    CurrentTargetingMaxCastRange = Ability->TargetingMaxRange;
+    CurrentTargetingMinCastRange = Ability->TargetingMinRange;
     
     // Применяем визуал
     UMaterialInterface* Mat = IsValid(Ability->TargetingDecalMaterial)
@@ -91,9 +92,27 @@ void UHR_AbilityTargetingComponent::UpdateGroundTargetLocation()
     const FVector ToTarget = HitLocation - OwnerLoc;
 
     // Просто зажимаем по дальности, без смены цвета
-    if (ToTarget.Size2D() > CurrentTargetingCastRange)
+    if (ToTarget.Size2D() > CurrentTargetingMaxCastRange)
     {
-        const FVector ClampedXY = OwnerLoc + ToTarget.GetSafeNormal2D() * CurrentTargetingCastRange;
+        const FVector ClampedXY = OwnerLoc + ToTarget.GetSafeNormal2D() * CurrentTargetingMaxCastRange;
+
+        FHitResult RangeHit;
+        FCollisionQueryParams Params;
+        Params.AddIgnoredActor(Owner);
+
+        bool bHit = GetWorld()->LineTraceSingleByChannel(
+            RangeHit,
+            ClampedXY + FVector(0, 0, 300.f),
+            ClampedXY - FVector(0, 0, 1000.f),
+            ECC_WorldStatic,
+            Params
+        );
+
+        HitLocation = bHit ? RangeHit.ImpactPoint + FVector(0, 0, 5.f) : ClampedXY;
+    }
+    else if (CurrentTargetingMinCastRange > 0 && ToTarget.Size2D() < CurrentTargetingMinCastRange)
+    {
+        const FVector ClampedXY = OwnerLoc + ToTarget.GetSafeNormal2D() * CurrentTargetingMinCastRange;
 
         FHitResult RangeHit;
         FCollisionQueryParams Params;
@@ -127,8 +146,8 @@ void UHR_AbilityTargetingComponent::UpdateDirectionalArc()
     FVector Direction = (HitLocation - OwnerLoc).GetSafeNormal2D();
     
     // Ставим декаль на дальность CurrentRange от персонажа
-    const FVector DecalLoc = OwnerLoc + Direction * (CurrentTargetingCastRange * 0.5f);
-    CurrentTargetLocation = OwnerLoc + Direction * CurrentTargetingCastRange;
+    const FVector DecalLoc = OwnerLoc + Direction * (CurrentTargetingMaxCastRange * 0.5f);
+    CurrentTargetLocation = OwnerLoc + Direction * CurrentTargetingMaxCastRange;
     
     UpdateDecalTransform(DecalLoc, CurrentTargetingRadius);
 }

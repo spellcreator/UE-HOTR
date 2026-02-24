@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameplayTags/HRTags.h"
 #include "Kismet/GameplayStatics.h"
+#include "Tasks/AbilityTask_JumpToLocation.h"
 
 UHR_Ability_Attack_JumpAttack::UHR_Ability_Attack_JumpAttack()
 {
@@ -31,60 +32,34 @@ void UHR_Ability_Attack_JumpAttack::ActivateAbility(const FGameplayAbilitySpecHa
 		if (Data && Data->HasEndPoint())
 		{
 			TargetLocation = Data->GetEndPoint();
+
 			AHR_BaseCharacter* PlayerCharacter = Cast<AHR_BaseCharacter>(ActorInfo->AvatarActor.Get());
 			if (!IsValid(PlayerCharacter)) { EndAbility(Handle, ActorInfo, ActivationInfo, true, true); return; }
-			LaunchChar(PlayerCharacter, TargetLocation, 150.f);
+
+			UAbilityTask_JumpToLocation* JumpTask = UAbilityTask_JumpToLocation::JumpToLocation(
+				this,
+				TargetLocation,
+				FlightDuration,          // Duration
+				ArcStrength,         // ArcHeight
+				JumpHeightCurve,  // UCurveFloat* — назначаешь в Blueprint/редакторе
+				nullptr
+				);
+
+			// Привязываем завершение к EndAbility
+			JumpTask->OnCompleted.AddDynamic(this, &UHR_Ability_Attack_JumpAttack::OnJumpCompleted);
+			JumpTask->OnInterrupted.AddDynamic(this, &UHR_Ability_Attack_JumpAttack::OnJumpInterrupted);
+			JumpTask->ReadyForActivation();
 		}
 	}
 }
 
-void UHR_Ability_Attack_JumpAttack::LaunchChar(AHR_BaseCharacter* PCharacter, FVector& EndPoint, float ArcHeight)
-{
-
-	FVector Start = PCharacter->GetActorLocation();
-	FVector LaunchVelocity;
-
-	bool bFound = UGameplayStatics::SuggestProjectileVelocity(
-		this,
-		LaunchVelocity,
-		Start,
-		EndPoint,
-		ArcHeight,               // Override gravity Z (можем регулировать дугу)
-		0.f,
-		0.f,
-		ESuggestProjVelocityTraceOption::DoNotTrace
-	);
-
-	if (bFound)
-	{
-		PCharacter->LaunchCharacter(LaunchVelocity, true, true);
-
-		DrawDebugTrajectory(PCharacter,Start, LaunchVelocity);
-	}
-}
-
-void UHR_Ability_Attack_JumpAttack::FinishAbility()
+void UHR_Ability_Attack_JumpAttack::OnJumpCompleted()
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
-void UHR_Ability_Attack_JumpAttack::DrawDebugTrajectory(AHR_BaseCharacter* PCharacter,FVector Start, FVector Velocity)
+void UHR_Ability_Attack_JumpAttack::OnJumpInterrupted()
 {
-	FPredictProjectilePathParams Params;
-	Params.StartLocation = Start;
-	Params.LaunchVelocity = Velocity;
-	Params.ProjectileRadius = 5.f;
-	Params.MaxSimTime = 2.f;
-	Params.bTraceWithCollision = false;
-	Params.SimFrequency = 15.f;
-	Params.OverrideGravityZ = PCharacter->GetCharacterMovement()->GetGravityZ();
-
-	FPredictProjectilePathResult Result;
-
-	UGameplayStatics::PredictProjectilePath(this, Params, Result);
-
-	for (const FPredictProjectilePathPointData& Point : Result.PathData)
-	{
-		DrawDebugSphere(GetWorld(), Point.Location, 6.f, 8, FColor::Green, false, 3.f);
-	}
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
+

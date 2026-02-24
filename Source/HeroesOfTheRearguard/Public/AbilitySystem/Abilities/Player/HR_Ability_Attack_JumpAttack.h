@@ -23,8 +23,18 @@ public:
 	const FGameplayAbilityActorInfo* ActorInfo,
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData) override;
-	
-	void LaunchChar(AHR_BaseCharacter* PCharacter, FVector& Direction, float ArcHeight);
+	void OnJumpCompleted();
+	void OnJumpInterrupted();
+
+	void LaunchChar();
 	void FinishAbility();
-	void DrawDebugTrajectory(AHR_BaseCharacter* PCharacter,FVector Start, FVector Velocity);
+	
+	private:
+	UPROPERTY(EditDefaultsOnly)
+	float FlightDuration = 0.5f;
+	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "0", ClampMax = "1000"))
+	float ArcStrength = 0.5f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UCurveFloat> JumpHeightCurve;
 };
