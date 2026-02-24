@@ -117,7 +117,4 @@ private:
 	void JumpAttack();
 
 	void TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag);
-	UHR_GameplayAbility* FindAbilityByTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const;
-	FGameplayAbilityTargetingLocationInfo MakeTargetLocationInfo(const FVector& Location) const;
-	void ActivateAbilityByAssetTag(UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const;
 };

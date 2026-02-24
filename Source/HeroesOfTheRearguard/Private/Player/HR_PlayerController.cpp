@@ -4,6 +4,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
+#include "AbilitySystem/HR_AbilitySystemComponent.h"
 #include "Characters/HR_BaseCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -215,10 +216,6 @@ void AHR_PlayerController::OnTargetingConfirmed(FVector TargetLocation)
 	EventData.TargetData.Add(LocationData);
 
 	int32 TriggeredCount = ASC->HandleGameplayEvent(Tag, &EventData);
-    
-	/* // Проверяем количество абилок
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, 
-		FString::Printf(TEXT("Abilities triggered: %d"), TriggeredCount));*/
 }
 
 void AHR_PlayerController::OnTargetingCancelled()
@@ -232,9 +229,6 @@ void AHR_PlayerController::OnTargetingCancelled()
 
 void AHR_PlayerController::LMBAbility()
 {
-	// Triggered биндинг срабатывает пока кнопка зажата.
-	// Способность активируем только если курсор скрыт (ЛКМ именно зажата,
-	// а не используется как обычный клик по UI)
 	if (!CameraInputComponent || !CameraInputComponent->CanRotateCamera()) return;
 
 	TryActivateOrBeginTargeting(HRTags::HRAbilities::LMBAbility);
@@ -253,9 +247,12 @@ void AHR_PlayerController::JumpAttack()
 void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag)
 {
 	if (!isAlive()) return;
+	
+	AHR_BaseCharacter* Char = Cast<AHR_BaseCharacter>(GetPawn());
+	if (!Char) return;
 
-	UAbilitySystemComponent* ASC =
-		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
+	UHR_AbilitySystemComponent* ASC = Cast<UHR_AbilitySystemComponent>(Char->GetAbilitySystemComponent());
+	
 	if (!ASC) return;
 
 	if (TargetingComponent->IsTargeting())
@@ -263,17 +260,18 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& Abili
 		TargetingComponent->CancelTargeting();
 		if (TargetingComponent->GetPendingAbilityTag() == AbilityTag) return;
 	}
+	
+	UHR_GameplayAbility* AbilityCDO = ASC->FindAbilityByTag(AbilityTag);
 
-	UHR_GameplayAbility* AbilityCDO = FindAbilityByTag(ASC, AbilityTag);
-	if (!AbilityCDO) return;
-
-	if (AbilityCDO->RequiresTargeting())
+	if (AbilityCDO->RequiresTargeting()){}
+	
+	if (ASC->RequiresTargeting(AbilityTag))
 	{
 		TargetingComponent->BeginTargeting(AbilityTag, AbilityCDO);
 	}
 	else
 	{
-		ActivateAbilityByAssetTag(ASC, AbilityTag);
+		ASC->TryActivateAbilityByTag(AbilityTag);
 	}
 }
 
@@ -288,37 +286,3 @@ bool AHR_PlayerController::isAlive() const
 	return BaseCharacter->IsAlive();
 }
 
-UHR_GameplayAbility* AHR_PlayerController::FindAbilityByTag(
-	UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const
-{
-	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
-	{
-		if (!IsValid(Spec.Ability)) continue;
-		if (Spec.Ability->GetAssetTags().HasTagExact(Tag))
-			return Cast<UHR_GameplayAbility>(Spec.Ability);
-	}
-	return nullptr;
-}
-
-FGameplayAbilityTargetingLocationInfo AHR_PlayerController::MakeTargetLocationInfo(
-	const FVector& Location) const
-{
-	FGameplayAbilityTargetingLocationInfo Info;
-	Info.LocationType     = EGameplayAbilityTargetingLocationType::LiteralTransform;
-	Info.LiteralTransform = FTransform(Location);
-	return Info;
-}
-
-void AHR_PlayerController::ActivateAbilityByAssetTag(
-	UAbilitySystemComponent* ASC, const FGameplayTag& Tag) const
-{
-	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
-	{
-		if (!IsValid(Spec.Ability)) continue;
-		if (Spec.Ability->GetAssetTags().HasTagExact(Tag))
-		{
-			ASC->TryActivateAbility(Spec.Handle);
-			return;
-		}
-	}
-}

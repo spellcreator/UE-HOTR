@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/HR_AbilitySystemComponent.h"
 
+#include "AbilitySystem/Abilities/HR_GameplayAbility.h"
 #include "GameplayTags/HRTags.h"
 
 
@@ -53,6 +54,24 @@ void UHR_AbilitySystemComponent::AddAbilityLevel(TSubclassOf<UGameplayAbility> A
 	}
 }
 
+bool UHR_AbilitySystemComponent::TryActivateAbilityByTag(const FGameplayTag& Tag)
+{
+	FGameplayTagContainer Container(Tag);
+	return TryActivateAbilitiesByTag(Container);
+}
+
+
+UHR_GameplayAbility* UHR_AbilitySystemComponent::FindAbilityByTag(const FGameplayTag& Tag) const
+{
+	for (const FGameplayAbilitySpec& Spec : GetActivatableAbilities())
+	{
+		if (!IsValid(Spec.Ability)) continue;
+		if (Spec.Ability->GetAssetTags().HasTagExact(Tag))
+			return Cast<UHR_GameplayAbility>(Spec.Ability);
+	}
+	return nullptr;
+}
+
 void UHR_AbilitySystemComponent::HandleAutoActivateAbilities(const FGameplayAbilitySpec& AbilitySpec)
 {
 	if (!IsValid(AbilitySpec.Ability)) return;
@@ -65,4 +84,13 @@ void UHR_AbilitySystemComponent::HandleAutoActivateAbilities(const FGameplayAbil
 			return;
 		}
 	}
+}
+
+bool UHR_AbilitySystemComponent::RequiresTargeting(const FGameplayTag& Tag) const
+{
+	if (UHR_GameplayAbility* Ability = FindAbilityByTag(Tag))
+	{
+		return Ability->RequiresTargeting();
+	}
+	return false;
 }
