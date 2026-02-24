@@ -73,6 +73,7 @@ void AHR_PlayerController::BeginPlay()
 	// Targeting
 	TargetingComponent = NewObject<UHR_AbilityTargetingComponent>(PlayerPawn);
 	TargetingComponent->RegisterComponent();
+	
 	TargetingComponent->OnTargetingConfirmed.AddDynamic(this, &AHR_PlayerController::OnTargetingConfirmed);
 	TargetingComponent->OnTargetingCancelled.AddDynamic(this, &AHR_PlayerController::OnTargetingCancelled);
 
@@ -179,14 +180,8 @@ void AHR_PlayerController::Zoom(const FInputActionValue& Value)
 void AHR_PlayerController::ConfirmTargeting()
 {
 	if (!TargetingComponent->IsTargeting()) return;
-
-	UAbilitySystemComponent* ASC =
-		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
-	if (!ASC) return;
-
-	const FGameplayTag Tag = TargetingComponent->GetPendingAbilityTag();
+	
 	TargetingComponent->ConfirmTargeting();
-	ActivateAbilityByAssetTag(ASC, Tag);
 }
 
 void AHR_PlayerController::CancelCurrentTargeting()
@@ -197,24 +192,33 @@ void AHR_PlayerController::CancelCurrentTargeting()
 
 void AHR_PlayerController::OnTargetingConfirmed(FVector TargetLocation)
 {
-	UAbilitySystemComponent* ASC =
+	UAbilitySystemComponent* ASC = 
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
 	if (!ASC) return;
 
+	const FGameplayTag Tag = TargetingComponent->GetPendingAbilityTag();
+
+	/*// Проверяем что тег валиден
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, 
+		FString::Printf(TEXT("Confirming with Tag: %s"), *Tag.ToString()));*/
+
+	if (!Tag.IsValid()) return;
+
+	FGameplayAbilityTargetData_LocationInfo* LocationData = 
+		new FGameplayAbilityTargetData_LocationInfo();
+	LocationData->TargetLocation.LocationType = 
+		EGameplayAbilityTargetingLocationType::LiteralTransform;
+	LocationData->TargetLocation.LiteralTransform = FTransform(TargetLocation);
+
 	FGameplayEventData EventData;
 	EventData.Instigator = GetPawn();
-	EventData.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromLocations(
-		FGameplayAbilityTargetingLocationInfo(),
-		MakeTargetLocationInfo(TargetLocation)
-	);
+	EventData.TargetData.Add(LocationData);
 
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-		GetPawn(),
-		TargetingComponent->GetPendingAbilityTag(),
-		EventData
-	);
-
-	ActivateAbilityByAssetTag(ASC, TargetingComponent->GetPendingAbilityTag());
+	int32 TriggeredCount = ASC->HandleGameplayEvent(Tag, &EventData);
+    
+	/* // Проверяем количество абилок
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, 
+		FString::Printf(TEXT("Abilities triggered: %d"), TriggeredCount));*/
 }
 
 void AHR_PlayerController::OnTargetingCancelled()

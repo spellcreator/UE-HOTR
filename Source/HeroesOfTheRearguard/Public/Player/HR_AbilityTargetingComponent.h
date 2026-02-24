@@ -67,8 +67,8 @@ private:
     bool bIsTargeting = false;
     FGameplayTag PendingAbilityTag;
     EHR_AbilityTargetingType CurrentTargetingType;
-    float CurrentRadius = 300.f;
-    float CurrentRange = 1200.f;
+    float CurrentTargetingRadius = 300.f;
+    float CurrentTargetingCastRange = 1200.f;
 
     FVector CurrentTargetLocation = FVector::ZeroVector;
 

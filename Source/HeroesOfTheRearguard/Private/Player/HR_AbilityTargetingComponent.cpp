@@ -40,16 +40,16 @@ void UHR_AbilityTargetingComponent::BeginTargeting(const FGameplayTag& AbilityTa
     PendingAbilityTag = AbilityTag;
     
     CurrentTargetingType = Ability->TargetingType;
-    CurrentRadius = Ability->AOERadius;
-    CurrentRange = Ability->TargetingRange;
+    CurrentTargetingRadius = Ability->AOERadius;
+    CurrentTargetingCastRange = Ability->TargetingRange;
     
     // Применяем визуал
     UMaterialInterface* Mat = IsValid(Ability->TargetingDecalMaterial)
         ? Ability->TargetingDecalMaterial
         : GroundTargetDecalMaterial;
 
-    ShowDecal(CurrentRadius, CurrentTargetingType, Mat);
-    UpdateDecalTransform(CurrentTargetLocation, CurrentRadius);
+    ShowDecal(CurrentTargetingRadius, CurrentTargetingType, Mat);
+    UpdateDecalTransform(CurrentTargetLocation, CurrentTargetingRadius);
 
     SetComponentTickEnabled(true);
 }
@@ -91,9 +91,9 @@ void UHR_AbilityTargetingComponent::UpdateGroundTargetLocation()
     const FVector ToTarget = HitLocation - OwnerLoc;
 
     // Просто зажимаем по дальности, без смены цвета
-    if (ToTarget.Size2D() > CurrentRange)
+    if (ToTarget.Size2D() > CurrentTargetingCastRange)
     {
-        const FVector ClampedXY = OwnerLoc + ToTarget.GetSafeNormal2D() * CurrentRange;
+        const FVector ClampedXY = OwnerLoc + ToTarget.GetSafeNormal2D() * CurrentTargetingCastRange;
 
         FHitResult RangeHit;
         FCollisionQueryParams Params;
@@ -111,7 +111,7 @@ void UHR_AbilityTargetingComponent::UpdateGroundTargetLocation()
     }
 
     CurrentTargetLocation = HitLocation;
-    UpdateDecalTransform(CurrentTargetLocation, CurrentRadius);
+    UpdateDecalTransform(CurrentTargetLocation, CurrentTargetingRadius);
 }
 
 void UHR_AbilityTargetingComponent::UpdateDirectionalArc()
@@ -127,10 +127,10 @@ void UHR_AbilityTargetingComponent::UpdateDirectionalArc()
     FVector Direction = (HitLocation - OwnerLoc).GetSafeNormal2D();
     
     // Ставим декаль на дальность CurrentRange от персонажа
-    const FVector DecalLoc = OwnerLoc + Direction * (CurrentRange * 0.5f);
-    CurrentTargetLocation = OwnerLoc + Direction * CurrentRange;
+    const FVector DecalLoc = OwnerLoc + Direction * (CurrentTargetingCastRange * 0.5f);
+    CurrentTargetLocation = OwnerLoc + Direction * CurrentTargetingCastRange;
     
-    UpdateDecalTransform(DecalLoc, CurrentRadius);
+    UpdateDecalTransform(DecalLoc, CurrentTargetingRadius);
 }
 
 bool UHR_AbilityTargetingComponent::GetGroundLocationUnderCursor(FVector& OutLocation) const

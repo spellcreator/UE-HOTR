@@ -99,7 +99,9 @@ private:
 	//AbilityTargeting
 	void ConfirmTargeting();
 	void CancelCurrentTargeting();
+	UFUNCTION()
 	void OnTargetingConfirmed(FVector TargetLocation);
+	UFUNCTION()
 	void OnTargetingCancelled();
 	
 	//Camera
