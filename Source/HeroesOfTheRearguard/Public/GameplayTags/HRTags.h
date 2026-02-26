@@ -5,9 +5,17 @@
 
 namespace HRTags
 {
+	namespace SetByCaller
+	{
+		UE_DECLARE_GAMEPLAY_TAG_EXTERN(PlayerMelee);
+	}
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(None);
 	namespace HRAbilities
 	{
+		namespace Notify
+    	{
+    		UE_DECLARE_GAMEPLAY_TAG_EXTERN(DamageNotify);
+    	}
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(ActivateOnGiven);
 		
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(LMBAbility);

@@ -3,9 +3,17 @@
 
 namespace HRTags
 {
+	namespace SetByCaller
+	{
+		UE_DEFINE_GAMEPLAY_TAG_COMMENT(PlayerMelee, "HRTags.SetByCaller.PlayerMelee", "Tag SetByCallers PlayerMelee")
+	}
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(None, "HRTags.None", "None")
 	namespace HRAbilities
 	{
+		namespace Notify
+		{
+			UE_DEFINE_GAMEPLAY_TAG_COMMENT(DamageNotify, "HRTags.HRAbilities.Notify.DamageNotify", "Tag Damage in AnimNotify");
+		}
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(ActivateOnGiven, "HRTags.HRAbilities.ActivateOnGiven", "Tag for Abilities that should activate immediately once given")
 		
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(LMBAbility, "HRTags.HRAbilities.LMBAbility", "Tag for Abilities on LMB")
