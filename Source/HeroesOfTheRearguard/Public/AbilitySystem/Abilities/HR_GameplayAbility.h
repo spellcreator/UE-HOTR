@@ -8,9 +8,28 @@
 #include "HR_GameplayAbility.generated.h"
 
 
-/**
- * 
- */
+USTRUCT(BlueprintType)
+struct FAbilityTargetingData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	EHR_AbilityTargetingType TargetingType;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AOERadius = 0.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AbilityMaxRange = 0.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AbilityMinRange = 0.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMaterialInterface> DecalMaterial = nullptr;
+};
+
+
 UCLASS()
 class HEROESOFTHEREARGUARD_API UHR_GameplayAbility : public UGameplayAbility
 {
@@ -21,33 +40,13 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Debugs")
 	bool bDrawDebugs = false;
-	
-	// ── Targeting ──────────────────────────────────────────
-    
-	/** Тип прицеливания. Instant = активировать сразу */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Targeting")
-	EHR_AbilityTargetingType TargetingType = EHR_AbilityTargetingType::Instant;
-
-	/** Радиус AOE (для GroundTarget / DirectionalArc) */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Targeting",
-			  meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
-	float AOERadius = 300.f;
-
-	/** Дальность прицеливания */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Targeting",
-			  meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
-	float TargetingMaxRange = 1200.f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Targeting",
-			  meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
-	float TargetingMinRange = 0.f;
 
 	bool RequiresTargeting() const
 	{
-		return TargetingType != EHR_AbilityTargetingType::Instant;
+		return TargetingData.TargetingType != EHR_AbilityTargetingType::Instant;
 	}
 	
-	// Материал декали для этой конкретной способности
-	UPROPERTY(EditDefaultsOnly, Category="Crash|Targeting",
-			  meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
-	TObjectPtr<UMaterialInterface> TargetingDecalMaterial;
+	
+	UPROPERTY(EditDefaultsOnly)
+	FAbilityTargetingData TargetingData;
 };

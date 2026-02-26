@@ -39,14 +39,14 @@ void UHR_AbilityTargetingComponent::BeginTargeting(const FGameplayTag& AbilityTa
     bIsTargeting = true;
     PendingAbilityTag = AbilityTag;
     
-    CurrentTargetingType = Ability->TargetingType;
-    CurrentTargetingRadius = Ability->AOERadius;
-    CurrentTargetingMaxCastRange = Ability->TargetingMaxRange;
-    CurrentTargetingMinCastRange = Ability->TargetingMinRange;
+    CurrentTargetingType = Ability->TargetingData.TargetingType;
+    CurrentTargetingRadius = Ability->TargetingData.AOERadius;
+    CurrentTargetingMaxCastRange = Ability->TargetingData.AbilityMaxRange;
+    CurrentTargetingMinCastRange = Ability->TargetingData.AbilityMinRange;
     
     // Применяем визуал
-    UMaterialInterface* Mat = IsValid(Ability->TargetingDecalMaterial)
-        ? Ability->TargetingDecalMaterial
+    UMaterialInterface* Mat = IsValid(Ability->TargetingData.DecalMaterial)
+        ? Ability->TargetingData.DecalMaterial
         : GroundTargetDecalMaterial;
 
     ShowDecal(CurrentTargetingRadius, CurrentTargetingType, Mat);

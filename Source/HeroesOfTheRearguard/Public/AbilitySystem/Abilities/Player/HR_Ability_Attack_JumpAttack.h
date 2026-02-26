@@ -29,7 +29,8 @@ public:
 	void LaunchChar();
 	void FinishAbility();
 	
-	private:
+private:
+	
 	UPROPERTY(EditDefaultsOnly)
 	float FlightDuration = 0.5f;
 	UPROPERTY(EditDefaultsOnly, meta = (ClampMin = "0", ClampMax = "1000"))
