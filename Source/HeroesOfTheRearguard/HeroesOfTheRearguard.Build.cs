@@ -18,7 +18,7 @@ public class HeroesOfTheRearguard : ModuleRules
 			"GameplayAbilities",
 			"GameplayTasks",
 			"GameplayTags",
-			"UMG" 
+			"UMG" ,
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AIModule" });

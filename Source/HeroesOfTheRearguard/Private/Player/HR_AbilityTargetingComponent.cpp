@@ -1,6 +1,6 @@
 ﻿
 #include "Player/HR_AbilityTargetingComponent.h"
-#include "AbilitySystem/Abilities/HR_GameplayAbility.h"
+#include "AbilitySystem/Core/HR_GameplayAbility.h"
 #include "Components/DecalComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"

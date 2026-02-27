@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
-#include "AbilitySystem/Abilities/HR_AbilityTargetingType.h"
+#include "AbilitySystem/Core/HR_AbilityTargetingType.h"
 #include "HR_AbilityTargetingComponent.generated.h"
 
 

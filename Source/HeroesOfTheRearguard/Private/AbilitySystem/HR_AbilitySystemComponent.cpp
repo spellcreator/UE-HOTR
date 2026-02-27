@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/HR_AbilitySystemComponent.h"
 
-#include "AbilitySystem/Abilities/HR_GameplayAbility.h"
+#include "AbilitySystem/Core/HR_GameplayAbility.h"
 #include "GameplayTags/HRTags.h"
 
 

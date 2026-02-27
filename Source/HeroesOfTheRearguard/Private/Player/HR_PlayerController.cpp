@@ -36,23 +36,22 @@ void AHR_PlayerController::SetupInputComponent()
 	EIC->BindAction(JumpAction,       ETriggerEvent::Started,   this, &AHR_PlayerController::Jump);
 	EIC->BindAction(JumpAction,       ETriggerEvent::Completed, this, &AHR_PlayerController::StopJumping);
 	EIC->BindAction(MoveAction,       ETriggerEvent::Triggered, this, &AHR_PlayerController::Move);
+
+	// Camera (ПКМ) — делегируем в компонент
+	EIC->BindAction(RMB_Action, ETriggerEvent::Started,   this, &AHR_PlayerController::OnRMBPressed_Internal);
+	EIC->BindAction(RMB_Action, ETriggerEvent::Completed, this, &AHR_PlayerController::OnRMBReleased_Internal);
+	EIC->BindAction(LMB_Action, ETriggerEvent::Started,   this, &AHR_PlayerController::OnLMBPressed_Internal);
+	EIC->BindAction(LMB_Action, ETriggerEvent::Completed, this, &AHR_PlayerController::OnLMBReleased_Internal);
 	EIC->BindAction(LookAction,       ETriggerEvent::Triggered, this, &AHR_PlayerController::Look);
 	EIC->BindAction(CameraBoomAction, ETriggerEvent::Triggered, this, &AHR_PlayerController::Zoom);
 
-	// Camera (ПКМ) — делегируем в компонент
-	EIC->BindAction(RMBAction, ETriggerEvent::Started,   this, &AHR_PlayerController::OnRMBPressed_Internal);
-	EIC->BindAction(RMBAction, ETriggerEvent::Completed, this, &AHR_PlayerController::OnRMBReleased_Internal);
-
-	// Abilities (ЛКМ) — Started/Completed для курсора, Triggered для способности
-	EIC->BindAction(LMBAbilityAction, ETriggerEvent::Started,   this, &AHR_PlayerController::OnLMBPressed_Internal);
-	EIC->BindAction(LMBAbilityAction, ETriggerEvent::Completed, this, &AHR_PlayerController::OnLMBReleased_Internal);
-	//EIC->BindAction(LMBAbilityAction, ETriggerEvent::Triggered, this, &AHR_PlayerController::LMBAbility);
-
 	// Targeting
-	EIC->BindAction(ConfirmTargetingAction, ETriggerEvent::Started, this, &AHR_PlayerController::ConfirmTargeting);
+	//EIC->BindAction(LMB_Action, ETriggerEvent::Started, this, &AHR_PlayerController::ConfirmTargeting);
+	EIC->BindAction(LMB_Action, ETriggerEvent::Started, this, &AHR_PlayerController::OnLMBPressed_Internal);
 	EIC->BindAction(CancelTargetingAction,  ETriggerEvent::Started, this, &AHR_PlayerController::CancelCurrentTargeting);
 
 	// Other Abilities
+	EIC->BindAction(AttackAction, ETriggerEvent::Started, this, &AHR_PlayerController::LMBAbility);
 	EIC->BindAction(ChargeAction,     ETriggerEvent::Started, this, &AHR_PlayerController::ChargeAbility);
 	EIC->BindAction(JumpAttackAction, ETriggerEvent::Started, this, &AHR_PlayerController::JumpAttack);
 }
@@ -84,12 +83,14 @@ void AHR_PlayerController::BeginPlay()
 	bEnableMouseOverEvents = true;
 }
 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Camera input — тонкие обёртки, вся логика в компоненте
 // ─────────────────────────────────────────────────────────────────────────────
 
 void AHR_PlayerController::OnRMBPressed_Internal()
 {
+	//if (!CameraInputComponent || !CameraInputComponent->CanRotateCamera()) return;
 	if (CameraInputComponent) CameraInputComponent->OnRMBPressed();
 }
 
@@ -100,7 +101,18 @@ void AHR_PlayerController::OnRMBReleased_Internal()
 
 void AHR_PlayerController::OnLMBPressed_Internal()
 {
-	if (CameraInputComponent) CameraInputComponent->OnLMBPressed();
+	switch(CurrentInputMode)
+	{
+	case EPlayerInputMode::Default:
+		if (CameraInputComponent) CameraInputComponent->OnLMBPressed();
+		break;
+
+	case EPlayerInputMode::Targeting:
+		ConfirmTargeting();
+		break;
+	case EPlayerInputMode::UI:
+		break;
+	}
 }
 
 void AHR_PlayerController::OnLMBReleased_Internal()
@@ -180,6 +192,7 @@ void AHR_PlayerController::Zoom(const FInputActionValue& Value)
 
 void AHR_PlayerController::ConfirmTargeting()
 {
+	CurrentInputMode = EPlayerInputMode::Default;
 	if (!TargetingComponent->IsTargeting()) return;
 	
 	TargetingComponent->ConfirmTargeting();
@@ -187,6 +200,7 @@ void AHR_PlayerController::ConfirmTargeting()
 
 void AHR_PlayerController::CancelCurrentTargeting()
 {
+	CurrentInputMode = EPlayerInputMode::Default;
 	if (TargetingComponent->IsTargeting())
 		TargetingComponent->CancelTargeting();
 }
@@ -229,8 +243,6 @@ void AHR_PlayerController::OnTargetingCancelled()
 
 void AHR_PlayerController::LMBAbility()
 {
-	if (!CameraInputComponent || !CameraInputComponent->CanRotateCamera()) return;
-
 	TryActivateOrBeginTargeting(HRTags::HRAbilities::LMBAbility);
 }
 
@@ -247,6 +259,8 @@ void AHR_PlayerController::JumpAttack()
 void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag)
 {
 	if (!isAlive()) return;
+	
+	CurrentInputMode = EPlayerInputMode::Targeting;
 	
 	AHR_BaseCharacter* Char = Cast<AHR_BaseCharacter>(GetPawn());
 	if (!Char) return;

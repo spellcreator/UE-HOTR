@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
-#include "AbilitySystem/Abilities/HR_GameplayAbility.h"
+#include "AbilitySystem/Core/HR_GameplayAbility.h"
 #include "GameFramework/PlayerController.h"
 #include "HR_PlayerController.generated.h"
 
@@ -16,6 +16,13 @@ class UInputAction;
 struct FInputActionValue;
 struct FGameplayTag;
 class UHR_AbilityTargetingComponent;
+
+enum class EPlayerInputMode
+{
+	Default,
+	Targeting,
+	UI
+};
 
 /**
  * 
@@ -40,9 +47,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|Settings")
 	float ArmMax = 800.f;
+
 	
 private:
-
+	EPlayerInputMode CurrentInputMode = EPlayerInputMode::Default;
+	
 	// ─── Компоненты ───────────────────────────────────────────────────────────
 
 	UPROPERTY(VisibleAnywhere, Category="Crash|Camera")
@@ -62,17 +71,20 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement")
 	TObjectPtr<UInputAction> MoveAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
 	TObjectPtr<UInputAction> LookAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
 	TObjectPtr<UInputAction> CameraBoomAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
-	TObjectPtr<UInputAction> RMBAction;
+	TObjectPtr<UInputAction> RMB_Action;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
+	TObjectPtr<UInputAction> LMB_Action;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
-	TObjectPtr<UInputAction> LMBAbilityAction;
+	TObjectPtr<UInputAction> AttackAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
 	TObjectPtr<UInputAction> ConfirmTargetingAction;

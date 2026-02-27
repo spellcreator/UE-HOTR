@@ -1,63 +1,70 @@
-﻿// 
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Abilities/HR_BaseTargetedAbility.h"
-#include "AbilitySystem/Abilities/HR_GameplayAbility.h"
-#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
-#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AbilitySystem/Core/HR_CombatAbility.h"
 #include "HR_Ability_Attack_JumpAttack.generated.h"
 
+class UCurveFloat;
+class UAnimMontage;
+class UAbilityTask_PlayMontageAndWait;
+class UAbilityTask_JumpToLocation;
 
-class AHR_BaseCharacter;
+
 /**
- * 
+ * UHR_Ability_Attack_JumpAttack
+ *
+ * Прыжок на цель → при приземлении: монтаж + DamageNotify → ApplyAOE.
+ * Наследуется от UHR_CombatAbility → всё управление уроном через DamageProfile.
+ * ExtractTargetLocation берётся из базового UHR_GameplayAbility.
+ *
+ * Что задать в Blueprint:
+ *   - FlightDuration, ArcStrength, JumpHeightCurve
+ *   - LandingMontage
+ *   - DamageEffect, DamageProfile
  */
 UCLASS()
-class HEROESOFTHEREARGUARD_API UHR_Ability_Attack_JumpAttack : public UHR_BaseTargetedAbility
+class HEROESOFTHEREARGUARD_API UHR_Ability_Attack_JumpAttack : public UHR_CombatAbility
 {
 	GENERATED_BODY()
+
 public:
 	UHR_Ability_Attack_JumpAttack();
-    
+
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData) override;
 
-private:
-	// Прыжок
-	UPROPERTY(EditDefaultsOnly, Category="HR Ability Attack Jump Attack")
+protected:
+	UPROPERTY(EditDefaultsOnly, Category="Crash|JumpAttack|Flight")
 	float FlightDuration = 0.5f;
 
-	UPROPERTY(EditDefaultsOnly, Category="HR Ability Attack Jump Attack", meta=(ClampMin="0", ClampMax="1000"))
+	UPROPERTY(EditDefaultsOnly, Category="Crash|JumpAttack|Flight", meta=(ClampMin="0", ClampMax="1000"))
 	float ArcStrength = 0.5f;
 
-	UPROPERTY(EditDefaultsOnly, Category="HR Ability Attack Jump Attack")
+	UPROPERTY(EditDefaultsOnly, Category="Crash|JumpAttack|Flight")
 	TObjectPtr<UCurveFloat> JumpHeightCurve;
 
-	// Анимация
-	UPROPERTY(EditDefaultsOnly, Category="Animation")
-	TObjectPtr<UAnimMontage> LandingMontage;
+	UPROPERTY(EditDefaultsOnly, Category="Crash|JumpAttack|Animation")
+	TObjectPtr<UAnimMontage> JumpMontage;
 
-	// Урон
-	UPROPERTY(EditDefaultsOnly, Category="Damage")
-	TSubclassOf<UGameplayEffect> DamageEffect;
+	
+	UPROPERTY(BlueprintReadOnly)
+	FVector CachedTargetLocation;
 
-	UPROPERTY(EditDefaultsOnly, Category="Damage")
-	float DamageAmount = 50.f;
-
-	UPROPERTY(EditDefaultsOnly, Category="Damage")
-	float DamageHitboxRadius = 300.f;
-
-	// Колбэки
+private:
 	UFUNCTION() void OnJumpCompleted();
 	UFUNCTION() void OnJumpInterrupted();
 	UFUNCTION() void OnMontageCompleted();
-	UFUNCTION() void OnMontageInterrupted();
+	//UFUNCTION() void OnMontageInterrupted();
 	UFUNCTION() void OnDamageNotify(FGameplayEventData Payload);
-
-	void ApplyLandingDamage();
+	
+	UPROPERTY()
+	TObjectPtr<UAbilityTask_PlayMontageAndWait> MontageTask;
+	UPROPERTY()
+	TObjectPtr<UAbilityTask_JumpToLocation> JumpTask;
+	
+	void JumpStart();
+	void DamageEvent();
 };

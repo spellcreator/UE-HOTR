@@ -13,6 +13,7 @@ class UAttributeSet;
 class UGameplayEffect;
 class UGameplayAbility;
 
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FASCInitialized, UAbilitySystemComponent*, ASC, UAttributeSet*, AS);
 
 UCLASS(Abstract)
