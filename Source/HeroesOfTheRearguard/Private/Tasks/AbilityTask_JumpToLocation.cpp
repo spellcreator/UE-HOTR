@@ -8,7 +8,7 @@
 
 
 UAbilityTask_JumpToLocation* UAbilityTask_JumpToLocation::JumpToLocation(UGameplayAbility* OwningAbility,
-	FVector TargetLocation, float Duration, float ArcHeight, UCurveFloat* HeightCurve, UCurveFloat* LateralCurve)
+	FVector TargetLocation, float Duration, float ArcHeight, UCurveFloat* HeightCurve, UCurveFloat* LateralCurve, float NearingLandTime)
 {
 		
 	UAbilityTask_JumpToLocation* JumpTask = NewAbilityTask<UAbilityTask_JumpToLocation>(OwningAbility);
@@ -18,6 +18,8 @@ UAbilityTask_JumpToLocation* UAbilityTask_JumpToLocation::JumpToLocation(UGamepl
 	JumpTask->HeightCurve   = HeightCurve;   // nullptr = дефолтная парабола
 	JumpTask->LateralCurve  = LateralCurve;  // nullptr = линейное движение
 	JumpTask->bTickingTask  = true;
+	JumpTask->NearingLandOffset = FMath::Max(NearingLandTime, 0.f);
+	JumpTask->bNearingLandFired = false;
 	return JumpTask;
 }
 
@@ -63,6 +65,13 @@ void UAbilityTask_JumpToLocation::TickTask(float DeltaTime)
 	if (!Direction.IsNearlyZero())
 	{
 		OwnerCharacter->SetActorRotation(Direction.Rotation());
+	}
+	
+	const float NearingLandAlpha = FMath::Clamp((TotalDuration - NearingLandOffset) / TotalDuration, 0.f, 1.f);
+	if (!bNearingLandFired && Alpha >= NearingLandAlpha)
+	{
+		bNearingLandFired = true;
+		OnNearingLand.Broadcast();
 	}
 
 	if (Alpha >= 1.f)

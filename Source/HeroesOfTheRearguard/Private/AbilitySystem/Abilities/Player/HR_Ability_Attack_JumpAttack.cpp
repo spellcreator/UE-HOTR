@@ -1,5 +1,6 @@
 ﻿#include "AbilitySystem/Abilities/Player/HR_Ability_Attack_JumpAttack.h"
 
+#include "Characters/HR_PlayerCharacter.h"
 #include "GameplayTags/HRTags.h"
 #include "Tasks/AbilityTask_JumpToLocation.h"
 
@@ -30,17 +31,12 @@ void UHR_Ability_Attack_JumpAttack::ActivateAbility(
     CachedTargetLocation = TargetLocation;
     
     DamageEvent();
-    JumpStart();
     
+    JumpStart();
 }
 
 void UHR_Ability_Attack_JumpAttack::OnJumpCompleted()
 {
-    
-    if (UAnimInstance* AnimInstance = GetCurrentActorInfo()->AnimInstance.Get())
-    {
-        AnimInstance->Montage_JumpToSection(FName("JumpLand"), JumpMontage);
-    }
     // Прыжок завершён — запускаем монтаж приземления.
     // DamageNotify уже слушается с ActivateAbility — ничего дополнительно не нужно.
     if (!JumpMontage)
@@ -74,6 +70,7 @@ void UHR_Ability_Attack_JumpAttack::JumpStart()
         this, CachedTargetLocation, FlightDuration, ArcStrength, JumpHeightCurve, nullptr);
     JumpTask->OnCompleted.AddDynamic(this, &ThisClass::OnJumpCompleted);
     JumpTask->OnInterrupted.AddDynamic(this, &ThisClass::OnJumpInterrupted);
+    JumpTask->OnNearingLand.AddDynamic(this, &ThisClass::OnNearingLand);
     JumpTask->ReadyForActivation();
     
     MontageTask = PlayMontage(JumpMontage, 1.f, FName("JumpStart"));
@@ -91,4 +88,19 @@ void UHR_Ability_Attack_JumpAttack::DamageEvent()
         WaitGameplayEvent(HRTags::HRAbilities::Notify::DamageNotify);
     DamageEvent->EventReceived.AddDynamic(this, &ThisClass::OnDamageNotify);
     DamageEvent->ReadyForActivation();
+}
+
+void UHR_Ability_Attack_JumpAttack::OnNearingLand()
+{
+    AHR_PlayerCharacter* PlayerCharacter = Cast<AHR_PlayerCharacter>(GetAvatarActorFromActorInfo());
+    if (!PlayerCharacter) return;
+
+    UAnimInstance* AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance();
+    if (!AnimInstance) return;
+
+    if (!AnimInstance->Montage_IsPlaying(JumpMontage))
+    {
+        AnimInstance->Montage_Play(JumpMontage, 1.f);
+    }
+    AnimInstance->Montage_JumpToSection(FName("JumpLand"), JumpMontage);
 }

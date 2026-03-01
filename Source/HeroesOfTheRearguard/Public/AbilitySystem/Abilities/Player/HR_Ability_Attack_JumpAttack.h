@@ -67,4 +67,6 @@ private:
 	
 	void JumpStart();
 	void DamageEvent();
+	UFUNCTION()
+	void OnNearingLand();
 };

@@ -19,6 +19,7 @@ class HEROESOFTHEREARGUARD_API UAbilityTask_JumpToLocation : public UAbilityTask
 public:
 	UPROPERTY(BlueprintAssignable) FJumpToLocationDelegate OnCompleted;
 	UPROPERTY(BlueprintAssignable) FJumpToLocationDelegate OnInterrupted;
+	UPROPERTY(BlueprintAssignable) FJumpToLocationDelegate OnNearingLand; 
 
 	/**
 	 * @param HeightCurve - кривая по оси Z (X=время[0..1], Y=высота[0..1])
@@ -34,7 +35,8 @@ public:
 		float             Duration     = 0.8f,
 		float             ArcHeight    = 200.f,  // максимальная высота в Units
 		UCurveFloat*      HeightCurve  = nullptr,
-		UCurveFloat*      LateralCurve = nullptr);
+		UCurveFloat*      LateralCurve = nullptr
+		, float NearingLandTime = 0.2f);
 
 	virtual void Activate()          override;
 	virtual void TickTask(float DeltaTime) override;
@@ -50,6 +52,9 @@ private:
 	float   TotalDuration;
 	float   ElapsedTime;
 	float   MaxArcHeight;
+	
+	float NearingLandOffset = 0.2f;  // секунд до конца
+	bool  bNearingLandFired = false;
 
 	FVector ComputePosition(float Alpha) const;
 };
