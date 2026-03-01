@@ -8,6 +8,8 @@
 #include "GameFramework/PlayerController.h"
 #include "HR_PlayerController.generated.h"
 
+class UInventoryWidget;
+class UInventoryComponent;
 class UHR_CameraInputComponent;
 class UHR_AbilityTargetActorComponent;
 class UInputMappingContext;
@@ -59,6 +61,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category="Crash|Targeting")
 	TObjectPtr<UHR_AbilityTargetingComponent> TargetingComponent;
+	
+	UPROPERTY()
+	TObjectPtr<UInventoryWidget> InventoryWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UInventoryWidget> InventoryWidgetClass;
 
 	// ─── Input Actions ────────────────────────────────────────────────────────
 
@@ -97,6 +105,11 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
 	TObjectPtr<UInputAction> JumpAttackAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	TObjectPtr<UInputAction> InventoryAction;
+	
+	
 
 	// ─── Handlers ─────────────────────────────────────────────────────────────
 
@@ -129,4 +142,7 @@ private:
 	void JumpAttack();
 
 	void TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag);
+	
+	// inve
+	void ToggleInventory();
 };

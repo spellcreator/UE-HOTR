@@ -13,7 +13,7 @@ AHR_BaseCharacter::AHR_BaseCharacter()
 	GetMesh()->bReceivesDecals = false;
 }
 
-void AHR_BaseCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+void AHR_BaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	

@@ -19,6 +19,7 @@ public class HeroesOfTheRearguard : ModuleRules
 			"GameplayTasks",
 			"GameplayTags",
 			"UMG" ,
+			"SlateCore",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AIModule" });

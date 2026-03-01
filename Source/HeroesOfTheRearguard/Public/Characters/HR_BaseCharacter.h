@@ -22,6 +22,7 @@ class HEROESOFTHEREARGUARD_API AHR_BaseCharacter : public ACharacter, public IAb
 	GENERATED_BODY()
 
 public:
+	
 	AHR_BaseCharacter();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -41,9 +42,6 @@ public:
 	virtual void HandleRespawn();
 	UFUNCTION(BlueprintCallable, Category = "Crash|Attributes")
 	void ResetAttributes();
-	
-	UFUNCTION(BlueprintImplementableEvent)
-	void RotateToTarget(AActor* RotateTarget);
 	
 	UPROPERTY(EditAnywhere, Category = "Crash|AI")
 	float SearchRange{1000.f};

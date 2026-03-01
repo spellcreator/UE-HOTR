@@ -6,6 +6,8 @@
 #include "HR_BaseCharacter.h"
 #include "HR_PlayerCharacter.generated.h"
 
+class UInventoryComponent;
+class UInventoryWidget;
 class UCameraComponent;
 class USpringArmComponent;
 
@@ -21,6 +23,21 @@ public:
 	virtual UAttributeSet* GetAttributeSet() const override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
+	
+	// Inventory
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+	TObjectPtr<UInventoryComponent> InventoryComponent;
+
+	UPROPERTY()
+	TObjectPtr<UInventoryWidget> InventoryWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UInventoryWidget> InventoryWidgetClass;
+
+
+	
+
 	
 private:
 	

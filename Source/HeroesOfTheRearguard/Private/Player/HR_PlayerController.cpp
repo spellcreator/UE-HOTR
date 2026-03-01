@@ -5,12 +5,16 @@
 #include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
 #include "AbilitySystem/HR_AbilitySystemComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "Characters/HR_BaseCharacter.h"
+#include "Characters/HR_PlayerCharacter.h"
+#include "Characters/InventoryComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameplayTags/HRTags.h"
 #include "Player/HR_AbilityTargetingComponent.h"
 #include "Player/HR_CameraInputComponent.h"
+#include "UI/Inventory/InventoryWidget.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Setup
@@ -54,11 +58,16 @@ void AHR_PlayerController::SetupInputComponent()
 	EIC->BindAction(AttackAction, ETriggerEvent::Started, this, &AHR_PlayerController::LMBAbility);
 	EIC->BindAction(ChargeAction,     ETriggerEvent::Started, this, &AHR_PlayerController::ChargeAbility);
 	EIC->BindAction(JumpAttackAction, ETriggerEvent::Started, this, &AHR_PlayerController::JumpAttack);
+	
+	// Inv
+	EIC->BindAction(InventoryAction, ETriggerEvent::Started, this, &AHR_PlayerController::ToggleInventory);
+	
 }
 
 void AHR_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Error, TEXT(">>> HR_PlayerController CREATED"));
 
 	APawn* PlayerPawn = GetPawn();
 	if (!PlayerPawn) return;
@@ -77,10 +86,24 @@ void AHR_PlayerController::BeginPlay()
 	TargetingComponent->OnTargetingConfirmed.AddDynamic(this, &AHR_PlayerController::OnTargetingConfirmed);
 	TargetingComponent->OnTargetingCancelled.AddDynamic(this, &AHR_PlayerController::OnTargetingCancelled);
 
-	// WoW default: курсор виден
+	// default: курсор виден
 	bShowMouseCursor       = true;
 	bEnableClickEvents     = true;
 	bEnableMouseOverEvents = true;
+	
+	AHR_PlayerCharacter* PlayerCharacter = Cast<AHR_PlayerCharacter>(PlayerPawn);
+	if (!PlayerCharacter) return;
+
+	// Создаём виджет и привязываем к компоненту персонажа
+	if (InventoryWidgetClass)
+	{
+		InventoryWidget = CreateWidget<UInventoryWidget>(this, InventoryWidgetClass);
+		InventoryWidget->InitInventory(PlayerCharacter->InventoryComponent);
+		InventoryWidget->AddToViewport();
+		InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("InventoryWidget created and collapsed"));
+	}
+	
 }
 
 
@@ -249,6 +272,13 @@ void AHR_PlayerController::LMBAbility()
 void AHR_PlayerController::ChargeAbility()
 {
 	TryActivateOrBeginTargeting(HRTags::HRAbilities::ChargeAbility);
+	
+	AHR_PlayerCharacter* PlayerCharacter = Cast<AHR_PlayerCharacter>(GetPawn());
+	if (!PlayerCharacter) return;
+	
+	// Убрать после тестов
+
+	PlayerCharacter->InventoryComponent->DebugFillInventory();
 }
 
 void AHR_PlayerController::JumpAttack()
@@ -286,6 +316,28 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& Abili
 	else
 	{
 		ASC->TryActivateAbilityByTag(AbilityTag);
+	}
+}
+
+void AHR_PlayerController::ToggleInventory()
+{
+	if (!InventoryWidget) return;
+
+	bool bIsVisible = InventoryWidget->GetVisibility() == ESlateVisibility::Visible;
+
+	if (bIsVisible)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("InventoryWidget Collapsed"));
+		InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+		SetInputMode(FInputModeGameOnly());
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("InventoryWidget Visible"));
+		InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+		FInputModeGameAndUI Mode;
+		Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		SetInputMode(Mode);
 	}
 }
 
