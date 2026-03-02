@@ -73,6 +73,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input")
 	TArray<TObjectPtr<UInputMappingContext>> InputMappingContexts;
 	
+	// Basic Action
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement")
 	TObjectPtr<UInputAction> JumpAction;
 	
@@ -85,26 +86,31 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
 	TObjectPtr<UInputAction> CameraBoomAction;
 
+	// Mouse Action
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
 	TObjectPtr<UInputAction> RMB_Action;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
 	TObjectPtr<UInputAction> LMB_Action;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
-	TObjectPtr<UInputAction> AttackAction;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	// Ability Targeting
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Targeting")
 	TObjectPtr<UInputAction> ConfirmTargetingAction;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Targeting")
 	TObjectPtr<UInputAction> CancelTargetingAction;
 	
+	// Ability 
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
 	TObjectPtr<UInputAction> ChargeAction;
-	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	TObjectPtr<UInputAction> AttackAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
 	TObjectPtr<UInputAction> JumpAttackAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	TObjectPtr<UInputAction> BladeFuryAction;
+	
+	// INVENTORY
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
 	TObjectPtr<UInputAction> InventoryAction;
@@ -140,6 +146,7 @@ private:
 	void LMBAbility();
 	void ChargeAbility();
 	void JumpAttack();
+	void BladeFury();
 
 	void TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag);
 	

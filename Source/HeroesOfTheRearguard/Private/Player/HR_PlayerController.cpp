@@ -54,10 +54,11 @@ void AHR_PlayerController::SetupInputComponent()
 	EIC->BindAction(LMB_Action, ETriggerEvent::Started, this, &AHR_PlayerController::OnLMBPressed_Internal);
 	EIC->BindAction(CancelTargetingAction,  ETriggerEvent::Started, this, &AHR_PlayerController::CancelCurrentTargeting);
 
-	// Other Abilities
+	// Abilities
 	EIC->BindAction(AttackAction, ETriggerEvent::Started, this, &AHR_PlayerController::LMBAbility);
 	EIC->BindAction(ChargeAction,     ETriggerEvent::Started, this, &AHR_PlayerController::ChargeAbility);
 	EIC->BindAction(JumpAttackAction, ETriggerEvent::Started, this, &AHR_PlayerController::JumpAttack);
+	EIC->BindAction(BladeFuryAction, ETriggerEvent::Started, this, &AHR_PlayerController::BladeFury);
 	
 	// Inv
 	EIC->BindAction(InventoryAction, ETriggerEvent::Started, this, &AHR_PlayerController::ToggleInventory);
@@ -284,6 +285,11 @@ void AHR_PlayerController::ChargeAbility()
 void AHR_PlayerController::JumpAttack()
 {
 	TryActivateOrBeginTargeting(HRTags::HRAbilities::JumpAttack);
+}
+
+void AHR_PlayerController::BladeFury()
+{
+	TryActivateOrBeginTargeting(HRTags::HRAbilities::BladeFury);
 }
 
 void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag)

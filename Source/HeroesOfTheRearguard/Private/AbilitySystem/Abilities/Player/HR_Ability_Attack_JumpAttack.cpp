@@ -73,13 +73,7 @@ void UHR_Ability_Attack_JumpAttack::JumpStart()
     JumpTask->OnNearingLand.AddDynamic(this, &ThisClass::OnNearingLand);
     JumpTask->ReadyForActivation();
     
-    MontageTask = PlayMontage(JumpMontage, 1.f, FName("JumpStart"));
-    MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
-    MontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageCompleted);
-    MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnJumpInterrupted);
-    MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnJumpInterrupted);
-    MontageTask->ReadyForActivation();
-    
+    MontageStart();
 }
 
 void UHR_Ability_Attack_JumpAttack::DamageEvent()
@@ -88,6 +82,16 @@ void UHR_Ability_Attack_JumpAttack::DamageEvent()
         WaitGameplayEvent(HRTags::HRAbilities::Notify::DamageNotify);
     DamageEvent->EventReceived.AddDynamic(this, &ThisClass::OnDamageNotify);
     DamageEvent->ReadyForActivation();
+}
+
+void UHR_Ability_Attack_JumpAttack::MontageStart()
+{
+    MontageTask = PlayMontage(JumpMontage, 1.f, FName("JumpStart"));
+    MontageTask->OnCompleted.AddDynamic(this, &ThisClass::OnMontageCompleted);
+    MontageTask->OnBlendOut.AddDynamic(this, &ThisClass::OnMontageCompleted);
+    MontageTask->OnInterrupted.AddDynamic(this, &ThisClass::OnJumpInterrupted);
+    MontageTask->OnCancelled.AddDynamic(this, &ThisClass::OnJumpInterrupted);
+    MontageTask->ReadyForActivation();
 }
 
 void UHR_Ability_Attack_JumpAttack::OnNearingLand()

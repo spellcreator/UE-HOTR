@@ -21,6 +21,7 @@ namespace HRTags
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(LMBAbility);
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(ChargeAbility);
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(JumpAttack);
+		UE_DECLARE_GAMEPLAY_TAG_EXTERN(BladeFury);
 	}
 	
 	namespace Events

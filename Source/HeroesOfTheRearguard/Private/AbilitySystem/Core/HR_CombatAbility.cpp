@@ -20,6 +20,7 @@ void UHR_CombatAbility::ApplyDamage(AActor* Target)
 
 void UHR_CombatAbility::ApplyAOE(float RadiusOverride)
 {
+    
     TArray<AActor*> Targets = FindTargetsInAOE(RadiusOverride);
     for (AActor* Target : Targets)
     {
@@ -32,8 +33,23 @@ TArray<AActor*> UHR_CombatAbility::FindTargetsInAOE(float Radius) const
     AActor* Avatar = GetAvatarActorFromActorInfo();
     if (!IsValid(Avatar)) return {};
 
-    const float FinalRadius = Radius >= 0.f ? Radius : TargetingData.AOERadius;
-
+    float FinalRadius;
+    if (Radius >= 0.f)
+    {
+        // Явный override — используем как есть
+        FinalRadius = Radius;
+    }
+    else if (TargetingData.TargetingType == EHR_AbilityTargetingType::Instant)
+    {
+        // Instant-способность: радиус из DamageProfile
+        FinalRadius = DamageProfile.HitboxRadius;
+    }
+    else
+    {
+        // Target-способность: радиус из TargetingData
+        FinalRadius = TargetingData.AOERadius;
+    }
+    
     return UHR_BlueprintLibrary::HitboxOverlapTest(
         Avatar,
         FinalRadius,
@@ -47,11 +63,17 @@ TArray<AActor*> UHR_CombatAbility::FindTargetsInAOE(float Radius) const
 
 void UHR_CombatAbility::ApplyDamageEffect(UAbilitySystemComponent* TargetASC)
 {
-    if (!TargetASC || !DamageEffect) return;
+
+    if (!TargetASC || !DamageEffect) 
+    {
+        return;
+    }
 
     UAbilitySystemComponent* InstigatorASC = GetAbilitySystemComponentFromActorInfo();
-    if (!InstigatorASC) return;
-
+    if (!InstigatorASC)
+    {
+        return;
+    }
     FGameplayEffectContextHandle Context = InstigatorASC->MakeEffectContext();
     Context.AddInstigator(GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo());
 
