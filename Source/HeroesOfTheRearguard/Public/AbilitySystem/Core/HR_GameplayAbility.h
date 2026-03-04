@@ -52,7 +52,13 @@ public:
 
     bool RequiresTargeting() const
     {
-        return TargetingData.TargetingType != EHR_AbilityTargetingType::Instant;
+        return TargetingData.TargetingType == EHR_AbilityTargetingType::GroundTarget
+            || TargetingData.TargetingType == EHR_AbilityTargetingType::DirectionalArc;
+    }
+
+    bool IsUnitTargeted() const
+    {
+        return TargetingData.TargetingType == EHR_AbilityTargetingType::UnitTarget;
     }
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Debug")

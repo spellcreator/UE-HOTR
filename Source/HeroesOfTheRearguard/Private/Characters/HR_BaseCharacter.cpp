@@ -3,6 +3,7 @@
 
 #include "HeroesOfTheRearguard/Public/Characters/HR_BaseCharacter.h"
 #include "AbilitySystemComponent.h"
+#include "Components/DecalComponent.h"
 #include "Net/UnrealNetwork.h"
 
 AHR_BaseCharacter::AHR_BaseCharacter()
@@ -11,6 +12,14 @@ AHR_BaseCharacter::AHR_BaseCharacter()
 	
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 	GetMesh()->bReceivesDecals = false;
+	
+	SelectionDecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("SelectionDecal"));
+	SelectionDecalComponent->SetupAttachment(GetRootComponent());
+	SelectionDecalComponent->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
+	SelectionDecalComponent->DecalSize = FVector(200.f, 128.f, 128.f);
+	SelectionDecalComponent->SetHiddenInGame(true);   // <-- hidden at start, NOT SetVisibility
+	SelectionDecalComponent->SetVisibility(true);       // <-- keep editor-visible so you can see it in viewport
+	SelectionDecalComponent->bDestroyOwnerAfterFade = false;
 }
 
 void AHR_BaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -72,5 +81,28 @@ void AHR_BaseCharacter::ResetAttributes()
 	FGameplayEffectContextHandle ContextHandle =  GetAbilitySystemComponent()->MakeEffectContext();
 	FGameplayEffectSpecHandle SpecHandle =  GetAbilitySystemComponent()->MakeOutgoingSpec(ResetAttributesEffect, 1.f, ContextHandle);
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());*/
+}
+
+// ---- IHR_Targetable Implementation ----------------------------------------
+
+bool AHR_BaseCharacter::CanBeTargeted_Implementation() const
+{
+	return IsAlive();
+}
+
+FText AHR_BaseCharacter::GetTargetDisplayName_Implementation() const
+{
+	return TargetDisplayName;
+}
+
+UAbilitySystemComponent* AHR_BaseCharacter::GetTargetASC_Implementation() const
+{
+	return GetAbilitySystemComponent();
+}
+
+FVector AHR_BaseCharacter::GetTargetIndicatorLocation_Implementation() const
+{
+	// Above the capsule top
+	return GetActorLocation() + FVector(0.f, 0.f, 120.f);
 }
 

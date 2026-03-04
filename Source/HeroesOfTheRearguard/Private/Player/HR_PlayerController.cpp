@@ -14,6 +14,7 @@
 #include "GameplayTags/HRTags.h"
 #include "Player/HR_AbilityTargetingComponent.h"
 #include "Player/HR_CameraInputComponent.h"
+#include "Player/HR_UnitTargetingComponent.h"
 #include "UI/Inventory/InventoryWidget.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -53,6 +54,8 @@ void AHR_PlayerController::SetupInputComponent()
 	//EIC->BindAction(LMB_Action, ETriggerEvent::Started, this, &AHR_PlayerController::ConfirmTargeting);
 	EIC->BindAction(LMB_Action, ETriggerEvent::Started, this, &AHR_PlayerController::OnLMBPressed_Internal);
 	EIC->BindAction(CancelTargetingAction,  ETriggerEvent::Started, this, &AHR_PlayerController::CancelCurrentTargeting);
+	
+	EIC->BindAction(TabTargetAction, ETriggerEvent::Started,this, &AHR_PlayerController::TabTarget);
 
 	// Abilities
 	EIC->BindAction(AttackAction, ETriggerEvent::Started, this, &AHR_PlayerController::LMBAbility);
@@ -68,45 +71,56 @@ void AHR_PlayerController::SetupInputComponent()
 void AHR_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Error, TEXT(">>> HR_PlayerController CREATED"));
+	AHR_PlayerCharacter* PlayerCharacter = Cast<AHR_PlayerCharacter>(GetPawn());
+	if (!PlayerCharacter) return;
 
-	APawn* PlayerPawn = GetPawn();
-	if (!PlayerPawn) return;
+	CameraBoom = PlayerCharacter->FindComponentByClass<USpringArmComponent>();
 
-	CameraBoom = PlayerPawn->FindComponentByClass<USpringArmComponent>();
+	// --- Fetch components from Character (they already exist as subobjects) ---
+	CameraInputComponent   = PlayerCharacter->GetCameraInputComponent();
+	TargetingComponent     = PlayerCharacter->GetAbilityTargetingComponent();
+	UnitTargetingComponent = PlayerCharacter->GetUnitTargetingComponent();
 
-	// Создаём CameraInputComponent и вешаем на Pawn,
-	// чтобы он мог добраться до персонажа через GetOwner()
-	CameraInputComponent = NewObject<UHR_CameraInputComponent>(PlayerPawn);
-	CameraInputComponent->RegisterComponent();
+	// Init camera component if needed
+	if (CameraInputComponent)
+	{
+		CameraInputComponent->InitializeDefaultState();
+	}
 
-	// Targeting
-	TargetingComponent = NewObject<UHR_AbilityTargetingComponent>(PlayerPawn);
-	TargetingComponent->RegisterComponent();
-	
-	TargetingComponent->OnTargetingConfirmed.AddDynamic(this, &AHR_PlayerController::OnTargetingConfirmed);
-	TargetingComponent->OnTargetingCancelled.AddDynamic(this, &AHR_PlayerController::OnTargetingCancelled);
+	// Bind targeting delegates
+	if (TargetingComponent)
+	{
+		TargetingComponent->OnTargetingConfirmed.AddDynamic(this, &AHR_PlayerController::OnTargetingConfirmed);
+		TargetingComponent->OnTargetingCancelled.AddDynamic(this, &AHR_PlayerController::OnTargetingCancelled);
+	}
 
-	// default: курсор виден
+	// Bind unit targeting delegates
+	if (UnitTargetingComponent)
+	{
+		UnitTargetingComponent->OnTargetChanged.AddDynamic(this, &AHR_PlayerController::OnUnitTargetChanged);
+	}
+
+	// Cursor
 	bShowMouseCursor       = true;
 	bEnableClickEvents     = true;
 	bEnableMouseOverEvents = true;
-	
-	AHR_PlayerCharacter* PlayerCharacter = Cast<AHR_PlayerCharacter>(PlayerPawn);
-	if (!PlayerCharacter) return;
 
-	// Создаём виджет и привязываем к компоненту персонажа
+	// Inventory UI
 	if (InventoryWidgetClass)
 	{
 		InventoryWidget = CreateWidget<UInventoryWidget>(this, InventoryWidgetClass);
-		InventoryWidget->InitInventory(PlayerCharacter->InventoryComponent);
+		InventoryWidget->InitInventory(PlayerCharacter->GetInventoryComponent());
 		InventoryWidget->AddToViewport();
 		InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("InventoryWidget created and collapsed"));
 	}
-	
 }
 
+
+void AHR_PlayerController::OnUnitTargetChanged(AActor* NewTarget)
+{
+	// Placeholder for highlight, sound, etc.
+	// UI subscribes to UnitTargetingComponent->OnTargetChanged directly.
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Camera input — тонкие обёртки, вся логика в компоненте
@@ -129,6 +143,7 @@ void AHR_PlayerController::OnLMBPressed_Internal()
 	{
 	case EPlayerInputMode::Default:
 		if (CameraInputComponent) CameraInputComponent->OnLMBPressed();
+		OnLMBForUnitTarget();
 		break;
 
 	case EPlayerInputMode::Targeting:
@@ -261,6 +276,20 @@ void AHR_PlayerController::OnTargetingCancelled()
 	// Визуал уже скрыт компонентом — ничего дополнительного
 }
 
+void AHR_PlayerController::OnLMBForUnitTarget()
+{
+	if (!UnitTargetingComponent) return;
+	if (CurrentInputMode == EPlayerInputMode::Targeting) return;
+	
+	UnitTargetingComponent->TryTargetUnderCursor();
+}
+
+void AHR_PlayerController::TabTarget()
+{
+	if (!UnitTargetingComponent) return;
+	UnitTargetingComponent->CycleTarget();
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Abilities
 // ─────────────────────────────────────────────────────────────────────────────
@@ -279,7 +308,7 @@ void AHR_PlayerController::ChargeAbility()
 	
 	// Убрать после тестов
 
-	PlayerCharacter->InventoryComponent->DebugFillInventory();
+	PlayerCharacter->GetInventoryComponent()->DebugFillInventory();
 }
 
 void AHR_PlayerController::JumpAttack()
@@ -296,13 +325,10 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& Abili
 {
 	if (!isAlive()) return;
 	
-	CurrentInputMode = EPlayerInputMode::Targeting;
-	
 	AHR_BaseCharacter* Char = Cast<AHR_BaseCharacter>(GetPawn());
 	if (!Char) return;
 
 	UHR_AbilitySystemComponent* ASC = Cast<UHR_AbilitySystemComponent>(Char->GetAbilitySystemComponent());
-	
 	if (!ASC) return;
 
 	if (TargetingComponent->IsTargeting())
@@ -310,13 +336,37 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& Abili
 		TargetingComponent->CancelTargeting();
 		if (TargetingComponent->GetPendingAbilityTag() == AbilityTag) return;
 	}
-	
-	UHR_GameplayAbility* AbilityCDO = ASC->FindAbilityByTag(AbilityTag);
 
-	if (AbilityCDO->RequiresTargeting()){}
-	
-	if (ASC->RequiresTargeting(AbilityTag))
+	UHR_GameplayAbility* AbilityCDO = ASC->FindAbilityByTag(AbilityTag);
+	if (!AbilityCDO) return;
+
+	const EHR_AbilityTargetingType TargetType = AbilityCDO->TargetingData.TargetingType;
+
+	if (TargetType == EHR_AbilityTargetingType::UnitTarget)
 	{
+		// UnitTarget: requires a selected unit target to activate
+		if (!UnitTargetingComponent || !UnitTargetingComponent->HasTarget())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow,
+				TEXT("Need a target to use this ability"));
+			return;
+		}
+
+		AActor* TargetActor = UnitTargetingComponent->GetCurrentTarget();
+
+		FGameplayAbilityTargetData_ActorArray* ActorData = new FGameplayAbilityTargetData_ActorArray();
+		ActorData->TargetActorArray.Add(TWeakObjectPtr<AActor>(TargetActor));
+
+		FGameplayEventData EventData;
+		EventData.Instigator = GetPawn();
+		EventData.Target = TargetActor;
+		EventData.TargetData.Add(ActorData);
+
+		ASC->HandleGameplayEvent(AbilityTag, &EventData);
+	}
+	else if (AbilityCDO->RequiresTargeting())
+	{
+		CurrentInputMode = EPlayerInputMode::Targeting;
 		TargetingComponent->BeginTargeting(AbilityTag, AbilityCDO);
 	}
 	else

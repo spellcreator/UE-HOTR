@@ -6,6 +6,7 @@
 #include "HR_BaseCharacter.h"
 #include "HR_MoneyKenn.generated.h"
 
+class UHR_UnitTargetingComponent;
 class UAttributeSet;
 class UAbilitySystemComponent;
 
@@ -20,6 +21,9 @@ public:
 	virtual void GetLifetimeReplicatedProps( TArray<FLifetimeProperty>& OutLifetimeProps ) const override;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual UAttributeSet* GetAttributeSet() const override;
+	
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crash|UnitTarget")
+	TObjectPtr<UHR_UnitTargetingComponent> UnitTargetingComponent;*/
 	
 protected:
 	virtual void BeginPlay() override;

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "TargetSystem/Interface/HR_Targetable.h"
 
 #include "HR_BaseCharacter.generated.h"
 
@@ -17,7 +18,7 @@ class UGameplayAbility;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FASCInitialized, UAbilitySystemComponent*, ASC, UAttributeSet*, AS);
 
 UCLASS(Abstract)
-class HEROESOFTHEREARGUARD_API AHR_BaseCharacter : public ACharacter, public IAbilitySystemInterface
+class HEROESOFTHEREARGUARD_API AHR_BaseCharacter : public ACharacter, public IAbilitySystemInterface, public IHR_Targetable
 {
 	GENERATED_BODY()
 
@@ -43,8 +44,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Crash|Attributes")
 	void ResetAttributes();
 	
-	UPROPERTY(EditAnywhere, Category = "Crash|AI")
-	float SearchRange{1000.f};
+	/*UPROPERTY(EditAnywhere, Category = "Crash|AI")
+	float SearchRange{1000.f};*/
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crash|UnitTarget|Target")
+	FText TargetDisplayName = FText::FromString(TEXT("Unknown"));
+
+	virtual bool CanBeTargeted_Implementation() const override;
+	virtual FText GetTargetDisplayName_Implementation() const override;
+	virtual UAbilitySystemComponent* GetTargetASC_Implementation() const override;
+	virtual FVector GetTargetIndicatorLocation_Implementation() const override;
+	
+	// ---- Selection Decal (used by UnitTargetingComponent) ----
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crash|UnitTarget")
+	TObjectPtr<UDecalComponent> SelectionDecalComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|UnitTarget|Visuals")
+	TObjectPtr<UMaterialInterface> SelectionDecalMaterial;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|UnitTarget|Visuals")
+	FVector SelectionDecalSize = FVector(200.f, 128.f, 128.f);
 	
 protected:	
 	

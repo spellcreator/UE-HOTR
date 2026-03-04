@@ -54,11 +54,11 @@ public:
 	TObjectPtr<UMaterialInstanceDynamic> CachedDynMat;
     
     //* Материал декали для AOE-прицела #2#
-    UPROPERTY(EditDefaultsOnly, Category="Crash|Targeting|Visuals")
+    UPROPERTY()
     TObjectPtr<UMaterialInterface> GroundTargetDecalMaterial;
 
      //* Материал для направленной способности #2#  
-    UPROPERTY(EditDefaultsOnly, Category="Crash|Targeting|Visuals")
+    UPROPERTY()
     TObjectPtr<UMaterialInterface> DirectionalDecalMaterial;
    
 

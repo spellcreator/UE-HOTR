@@ -10,7 +10,10 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Player/HR_AbilityTargetingComponent.h"
+#include "Player/HR_CameraInputComponent.h"
 #include "Player/HR_PlayerState.h"
+#include "Player/HR_UnitTargetingComponent.h"
 
 
 class AHR_PlayerState;
@@ -43,8 +46,13 @@ AHR_PlayerCharacter::AHR_PlayerCharacter()
 	CameraComponent->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
 	
-	// Inventory 
+	// ---- Components (moved from PlayerController) ----
 	
+	CameraInputComponent = CreateDefaultSubobject<UHR_CameraInputComponent>("CameraInputComponent");
+	AbilityTargetingComponent = CreateDefaultSubobject<UHR_AbilityTargetingComponent>("AbilityTargetingComponent");
+	UnitTargetingComponent = CreateDefaultSubobject<UHR_UnitTargetingComponent>("UnitTargetingComponent");
+	
+	// Inventory
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
 }
 
@@ -103,4 +111,24 @@ void AHR_PlayerCharacter::OnRep_PlayerState()
     
 	Delegate.RemoveAll(this); // ✅ Сначала отписываемся
 	Delegate.AddUObject(this, &ThisClass::OnHealthChange);
+}
+
+UHR_CameraInputComponent* AHR_PlayerCharacter::GetCameraInputComponent()
+{
+	return CameraInputComponent;
+}
+
+UHR_AbilityTargetingComponent* AHR_PlayerCharacter::GetAbilityTargetingComponent()
+{
+	return AbilityTargetingComponent;
+}
+
+UHR_UnitTargetingComponent* AHR_PlayerCharacter::GetUnitTargetingComponent()
+{
+	return UnitTargetingComponent;
+}
+
+UInventoryComponent* AHR_PlayerCharacter::GetInventoryComponent()
+{
+	return InventoryComponent;
 }

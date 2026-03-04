@@ -6,6 +6,9 @@
 #include "HR_BaseCharacter.h"
 #include "HR_PlayerCharacter.generated.h"
 
+class UHR_UnitTargetingComponent;
+class UHR_AbilityTargetingComponent;
+class UHR_CameraInputComponent;
 class UInventoryComponent;
 class UInventoryWidget;
 class UCameraComponent;
@@ -24,10 +27,12 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 	
-	// Inventory
+	// ---- Components (were in Controller, now on Character) ----
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
-	TObjectPtr<UInventoryComponent> InventoryComponent;
+	UHR_CameraInputComponent* GetCameraInputComponent();
+	UHR_AbilityTargetingComponent* GetAbilityTargetingComponent();
+	UHR_UnitTargetingComponent* GetUnitTargetingComponent();
+	UInventoryComponent* GetInventoryComponent();
 
 	UPROPERTY()
 	TObjectPtr<UInventoryWidget> InventoryWidget;
@@ -35,11 +40,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UInventoryWidget> InventoryWidgetClass;
 
-
-	
-
-	
 private:
+	
+	UPROPERTY(VisibleAnywhere, Category = "Crash|Camera")
+	TObjectPtr<UHR_CameraInputComponent> CameraInputComponent;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Crash|Targeting")
+	TObjectPtr<UHR_AbilityTargetingComponent> AbilityTargetingComponent;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Crash|UnitTarget")
+	TObjectPtr<UHR_UnitTargetingComponent> UnitTargetingComponent;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	TObjectPtr<UInventoryComponent> InventoryComponent;
 	
 	UPROPERTY(VisibleAnywhere, Category="Crash|Camera")
 	TObjectPtr<USpringArmComponent> SpringArmComp;

@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "HR_PlayerController.generated.h"
 
+class UHR_UnitTargetingComponent;
 class UInventoryWidget;
 class UInventoryComponent;
 class UHR_CameraInputComponent;
@@ -62,6 +63,10 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="Crash|Targeting")
 	TObjectPtr<UHR_AbilityTargetingComponent> TargetingComponent;
 	
+	UPROPERTY(VisibleAnywhere, Category="Crash|Target")
+	TObjectPtr<UHR_UnitTargetingComponent> UnitTargetingComponent;
+	
+	
 	UPROPERTY()
 	TObjectPtr<UInventoryWidget> InventoryWidget;
 
@@ -100,6 +105,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Targeting")
 	TObjectPtr<UInputAction> CancelTargetingAction;
 	
+	// UnitTargeting
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Targeting")
+	TObjectPtr<UInputAction> TabTargetAction;
+	
 	// Ability 
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
 	TObjectPtr<UInputAction> ChargeAction;
@@ -134,6 +143,12 @@ private:
 	void OnTargetingConfirmed(FVector TargetLocation);
 	UFUNCTION()
 	void OnTargetingCancelled();
+	
+	// UnitTargeting
+	void OnLMBForUnitTarget();
+	void TabTarget();
+	UFUNCTION()
+	void OnUnitTargetChanged(AActor* NewTarget);
 	
 	//Camera
 	void OnRMBPressed_Internal();
