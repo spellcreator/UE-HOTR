@@ -25,16 +25,16 @@ public:
 
 	// ─── Вызывается из контроллера при инпуте ────────────────────────────────
 
-	UFUNCTION(BlueprintCallable, Category="Crash|Camera")
+	UFUNCTION(BlueprintCallable, Category="Crash|CameraInputComponent|Camera")
 	void OnRMBPressed();
 
-	UFUNCTION(BlueprintCallable, Category="Crash|Camera")
+	UFUNCTION(BlueprintCallable, Category="Crash|CameraInputComponent|Camera")
 	void OnRMBReleased();
 
-	UFUNCTION(BlueprintCallable, Category="Crash|Camera")
+	UFUNCTION(BlueprintCallable, Category="Crash|CameraInputComponent|Camera")
 	void OnLMBPressed();
 
-	UFUNCTION(BlueprintCallable, Category="Crash|Camera")
+	UFUNCTION(BlueprintCallable, Category="Crash|CameraInputComponent|Camera")
 	void OnLMBReleased();
 	bool IsSoftLookActive() const;
 
@@ -42,21 +42,21 @@ public:
 	 * Контроллер вызывает это в Look() перед тем как применить AddYawInput/AddPitchInput.
 	 * Возвращает true — вращаем камеру, false — игнорируем инпут.
 	 */
-	UFUNCTION(BlueprintPure, Category="Crash|Camera")
+	UFUNCTION(BlueprintPure, Category="Crash|CameraInputComponent|Camera")
 	bool CanRotateCamera() const;
 	
 	// ─── Настройки SoftLook ───────────────────────────────────────────────────
 
 	/** Скорость возврата камеры за спину персонажа после отпускания ЛКМ */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|SoftLook")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|CameraInputComponent|Camera|SoftLook")
 	float CameraReturnSpeed = 5.f;
 
 	/** Порог в градусах — при таком отклонении считаем возврат завершённым */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|SoftLook")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|CameraInputComponent|Camera|SoftLook")
 	float CameraReturnThreshold = 0.5f;
 	
 	/** Нужно ли возвращать камеру за спину игроку */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|SoftLook")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|CameraInputComponent|Camera|SoftLook")
 	bool bIsNeedReturn = false;
 	
 private:

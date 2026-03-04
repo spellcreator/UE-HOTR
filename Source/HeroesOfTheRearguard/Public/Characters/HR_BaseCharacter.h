@@ -39,7 +39,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FASCInitialized OnASCInitialized;
 	
-	UFUNCTION(BlueprintCallable, Category = "Crash|Death")
+	UFUNCTION(BlueprintCallable, Category = "Crash|BaseCharacter|Death")
 	virtual void HandleRespawn();
 	UFUNCTION(BlueprintCallable, Category = "Crash|Attributes")
 	void ResetAttributes();
@@ -47,23 +47,22 @@ public:
 	/*UPROPERTY(EditAnywhere, Category = "Crash|AI")
 	float SearchRange{1000.f};*/
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crash|UnitTarget|Target")
-	FText TargetDisplayName = FText::FromString(TEXT("Unknown"));
+	UPROPERTY(EditAnywhere, Category = "Crash|BaseCharacter|Target")
+	FText TargetDisplayName;
 
 	virtual bool CanBeTargeted_Implementation() const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
 	virtual UAbilitySystemComponent* GetTargetASC_Implementation() const override;
 	virtual FVector GetTargetIndicatorLocation_Implementation() const override;
-	
 	// ---- Selection Decal (used by UnitTargetingComponent) ----
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Crash|UnitTarget")
+	UPROPERTY(VisibleAnywhere, Category = "Crash|BaseCharacter|SelectionDecal")
 	TObjectPtr<UDecalComponent> SelectionDecalComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|UnitTarget|Visuals")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|BaseCharacter|SelectionDecal")
 	TObjectPtr<UMaterialInterface> SelectionDecalMaterial;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|UnitTarget|Visuals")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|BaseCharacter|SelectionDecal")
 	FVector SelectionDecalSize = FVector(200.f, 128.f, 128.f);
 	
 protected:	
@@ -77,13 +76,13 @@ protected:
 	
 private:
 	
-	UPROPERTY(EditDefaultsOnly, Category= "Crash|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category= "Crash|BaseCharacter|Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 	
-	UPROPERTY(EditDefaultsOnly, Category="Crash|Effects")
+	UPROPERTY(EditDefaultsOnly, Category="Crash|BaseCharacter|Effects")
 	TSubclassOf<UGameplayEffect> InitializeAttributesEffect;
 	
-	UPROPERTY(EditDefaultsOnly, Category="Crash|Effects")
+	UPROPERTY(EditDefaultsOnly, Category="Crash|BaseCharacter|Effects")
 	TSubclassOf<UGameplayEffect> ResetAttributesEffect;
 	
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Replicated)

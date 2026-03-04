@@ -55,43 +55,43 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 							   FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTarget|Target")
+	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTargetingComponent|Target")
 	AActor* TryTargetUnderCursor();
 
-	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTarget|Target")
+	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTargetingComponent|Target")
 	void SetTarget(AActor* NewTarget);
 
-	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTarget|Target")
+	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTargetingComponent|Target")
 	void ClearTarget();
 
-	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTarget|Target")
+	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTargetingComponent|Target")
 	AActor* CycleTarget(float SearchRadius = 2000.f);
 
-	UFUNCTION(BlueprintPure, Category = "Crash|UnitTarget|Target")
+	UFUNCTION(BlueprintPure, Category = "Crash|UnitTargetingComponent|Target")
 	bool HasTarget() const { return IsValid(CurrentTarget); }
 
-	UFUNCTION(BlueprintPure, Category = "Crash|UnitTarget|UnitTarget|Target")
+	UFUNCTION(BlueprintPure, Category = "Crash|UnitTargetingComponent|Target")
 	AActor* GetCurrentTarget() const { return CurrentTarget; }
 
-	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTarget|Target")
+	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTargetingComponent|Target")
 	FHR_TargetInfo GetTargetInfo() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTarget|Target")
+	UFUNCTION(BlueprintCallable, Category = "Crash|UnitTargetingComponent|Target")
 	FHR_TargetInfo GetTargetOfTargetInfo() const;
 
-	UPROPERTY(BlueprintAssignable, Category = "Crash|UnitTarget|Target")
+	UPROPERTY(BlueprintAssignable, Category = "Crash|UnitTargetingComponent|Target")
 	FOnTargetChanged OnTargetChanged;
 
-	UPROPERTY(BlueprintAssignable, Category = "Crash|UnitTarget|Target")
+	UPROPERTY(BlueprintAssignable, Category = "Crash|UnitTargetingComponent|Target")
 	FOnTargetOfTargetChanged OnTargetOfTargetChanged;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|UnitTarget|Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|UnitTargetingComponent|Settings")
 	float MaxTraceDistance = 5000.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|UnitTarget|Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|UnitTargetingComponent|Settings")
 	TEnumAsByte<ECollisionChannel> TraceChannel = ECC_Pawn;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|UnitTarget|Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|UnitTargetingComponent|Settings")
 	bool bAutoClearInvalidTarget = true;
 
 private:
@@ -105,8 +105,8 @@ private:
 	int32 CycleIndex = 0;
 	
 	UPROPERTY() UDecalComponent* TargetDecal;
-	UPROPERTY(EditDefaultsOnly, Category="Crash|UnitTarget|Visualization") 
-	UMaterialInterface* TargetDecalMaterial;
+	UPROPERTY(EditDefaultsOnly, Category="Crash|UnitTargetingComponent|Visualization") 
+	TObjectPtr<UMaterialInterface> TargetDecalMaterial;
 
 	APlayerController* GetPlayerController() const;
 	FHR_TargetInfo BuildTargetInfo(AActor* Actor) const;

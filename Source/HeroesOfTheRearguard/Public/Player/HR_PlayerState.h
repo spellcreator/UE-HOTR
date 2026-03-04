@@ -24,7 +24,7 @@ public:
 	UAttributeSet* GetAttributeSet() const {return AttributeSet;};
 	
 private:
-	UPROPERTY(VisibleAnywhere, Category= "Crash|Abilities")
+	UPROPERTY(VisibleAnywhere, Category= "Crash|PlayerState|Abilities")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet;

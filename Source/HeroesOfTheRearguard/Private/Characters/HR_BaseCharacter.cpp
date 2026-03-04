@@ -106,3 +106,4 @@ FVector AHR_BaseCharacter::GetTargetIndicatorLocation_Implementation() const
 	return GetActorLocation() + FVector(0.f, 0.f, 120.f);
 }
 
+

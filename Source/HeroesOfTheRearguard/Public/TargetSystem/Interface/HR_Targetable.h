@@ -37,7 +37,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UAbilitySystemComponent* GetTargetASC() const;
 
-	/** Точка, к которой рисовать индикатор выделения (обычно над головой) */
+	/** Точка, к которой рисовать индикатор выделения */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FVector GetTargetIndicatorLocation() const;
 };

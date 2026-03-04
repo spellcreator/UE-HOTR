@@ -52,7 +52,7 @@ void AHR_PlayerController::SetupInputComponent()
 
 	// Targeting
 	//EIC->BindAction(LMB_Action, ETriggerEvent::Started, this, &AHR_PlayerController::ConfirmTargeting);
-	EIC->BindAction(LMB_Action, ETriggerEvent::Started, this, &AHR_PlayerController::OnLMBPressed_Internal);
+	//EIC->BindAction(LMB_Action, ETriggerEvent::Started, this, &AHR_PlayerController::OnLMBPressed_Internal);
 	EIC->BindAction(CancelTargetingAction,  ETriggerEvent::Started, this, &AHR_PlayerController::CancelCurrentTargeting);
 	
 	EIC->BindAction(TabTargetAction, ETriggerEvent::Started,this, &AHR_PlayerController::TabTarget);

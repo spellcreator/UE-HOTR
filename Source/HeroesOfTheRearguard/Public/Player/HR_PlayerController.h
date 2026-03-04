@@ -42,13 +42,13 @@ protected:
 	UPROPERTY()
 	TObjectPtr<USpringArmComponent> CameraBoom = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|PlayerController|Camera|Settings")
 	float ZoomSpeed = 50.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|PlayerController|Camera|Settings")
 	float ArmMin = 200.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|Camera|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Crash|PlayerController|Camera|Settings")
 	float ArmMax = 800.f;
 
 	
@@ -57,13 +57,13 @@ private:
 	
 	// ─── Компоненты ───────────────────────────────────────────────────────────
 
-	UPROPERTY(VisibleAnywhere, Category="Crash|Camera")
+	UPROPERTY(VisibleAnywhere, Category="Crash|PlayerController|Camera")
 	TObjectPtr<UHR_CameraInputComponent> CameraInputComponent;
 
-	UPROPERTY(VisibleAnywhere, Category="Crash|Targeting")
+	UPROPERTY(VisibleAnywhere, Category="Crash|PlayerController|Targeting")
 	TObjectPtr<UHR_AbilityTargetingComponent> TargetingComponent;
 	
-	UPROPERTY(VisibleAnywhere, Category="Crash|Target")
+	UPROPERTY(VisibleAnywhere, Category="Crash|PlayerController|Target")
 	TObjectPtr<UHR_UnitTargetingComponent> UnitTargetingComponent;
 	
 	
@@ -75,53 +75,53 @@ private:
 
 	// ─── Input Actions ────────────────────────────────────────────────────────
 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input")
 	TArray<TObjectPtr<UInputMappingContext>> InputMappingContexts;
 	
 	// Basic Action
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Movement")
 	TObjectPtr<UInputAction> JumpAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Movement")
 	TObjectPtr<UInputAction> MoveAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Camera")
 	TObjectPtr<UInputAction> LookAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Camera")
 	TObjectPtr<UInputAction> CameraBoomAction;
 
 	// Mouse Action
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Camera")
 	TObjectPtr<UInputAction> RMB_Action;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Camera")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Camera")
 	TObjectPtr<UInputAction> LMB_Action;
 	
 	// Ability Targeting
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Targeting")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Targeting")
 	TObjectPtr<UInputAction> ConfirmTargetingAction;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Targeting")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Targeting")
 	TObjectPtr<UInputAction> CancelTargetingAction;
 	
 	// UnitTargeting
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Targeting")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Targeting")
 	TObjectPtr<UInputAction> TabTargetAction;
 	
 	// Ability 
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Abilities")
 	TObjectPtr<UInputAction> ChargeAction;
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Abilities")
 	TObjectPtr<UInputAction> AttackAction;
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Abilities")
 	TObjectPtr<UInputAction> JumpAttackAction;
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Abilities")
 	TObjectPtr<UInputAction> BladeFuryAction;
 	
 	// INVENTORY
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Crash|Input|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Abilities")
 	TObjectPtr<UInputAction> InventoryAction;
 	
 	

@@ -19,8 +19,6 @@ AHR_MoneyKenn::AHR_MoneyKenn()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 	
 	AttributeSet = CreateDefaultSubobject<UHR_AttributeSet>("AttributeSet");
-	
-	/*UnitTargetingComponent = CreateDefaultSubobject<UHR_UnitTargetingComponent>("UnitTargetingComponent");*/
 }
 
 void AHR_MoneyKenn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

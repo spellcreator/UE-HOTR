@@ -28,15 +28,15 @@ public:
                                FActorComponentTickFunction* ThisTickFunction) override;
 
     /** Начать фазу прицеливания для способности */
-    UFUNCTION(BlueprintCallable, Category="Crash|Targeting")
+    UFUNCTION(BlueprintCallable, Category="Crash|AbilityTargetingComponent|Targeting")
     void BeginTargeting(const FGameplayTag& AbilityTag, UHR_GameplayAbility* Ability);
 
     /** Подтвердить прицеливание (2е нажатие) */
-    UFUNCTION(BlueprintCallable, Category="Crash|Targeting")
+    UFUNCTION(BlueprintCallable, Category="Crash|AbilityTargetingComponent|Targeting")
     void ConfirmTargeting();
 
     /** Отменить прицеливание (ПКМ / Escape) */
-    UFUNCTION(BlueprintCallable, Category="Crash|Targeting")
+    UFUNCTION(BlueprintCallable, Category="Crash|AbilityTargetingComponent|Targeting")
     void CancelTargeting();
 
     bool IsTargeting() const { return bIsTargeting; }

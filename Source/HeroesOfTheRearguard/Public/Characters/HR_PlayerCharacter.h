@@ -37,26 +37,26 @@ public:
 	UPROPERTY()
 	TObjectPtr<UInventoryWidget> InventoryWidget;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerCharacter|UI")
 	TSubclassOf<UInventoryWidget> InventoryWidgetClass;
 
 private:
 	
-	UPROPERTY(VisibleAnywhere, Category = "Crash|Camera")
+	UPROPERTY(VisibleAnywhere, Category = "Crash|PlayerCharacter|Camera")
 	TObjectPtr<UHR_CameraInputComponent> CameraInputComponent;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Crash|Targeting")
+	UPROPERTY(VisibleAnywhere, Category = "Crash|PlayerCharacter|Targeting")
 	TObjectPtr<UHR_AbilityTargetingComponent> AbilityTargetingComponent;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Crash|UnitTarget")
+	UPROPERTY(VisibleAnywhere, Category = "Crash|PlayerCharacter|UnitTarget")
 	TObjectPtr<UHR_UnitTargetingComponent> UnitTargetingComponent;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+	UPROPERTY(VisibleAnywhere, Category = "Crash|PlayerCharacter|Inventory")
 	TObjectPtr<UInventoryComponent> InventoryComponent;
 	
-	UPROPERTY(VisibleAnywhere, Category="Crash|Camera")
+	UPROPERTY(VisibleAnywhere, Category="Crash|PlayerCharacter|Camera")
 	TObjectPtr<USpringArmComponent> SpringArmComp;
-	UPROPERTY(VisibleAnywhere, Category="Crash|Camera")
+	UPROPERTY(VisibleAnywhere, Category="Crash|PlayerCharacter|Camera")
 	TObjectPtr<UCameraComponent> CameraComponent;
 	
 };

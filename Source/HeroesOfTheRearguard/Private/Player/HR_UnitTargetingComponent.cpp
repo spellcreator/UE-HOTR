@@ -51,7 +51,6 @@ AActor* UHR_UnitTargetingComponent::TryTargetUnderCursor()
 	}
 	if (HitActor == CurrentTarget)
 	{
-		ClearTarget();
 		return nullptr;
 	}
 	SetTarget(HitActor);
@@ -61,10 +60,7 @@ AActor* UHR_UnitTargetingComponent::TryTargetUnderCursor()
 void UHR_UnitTargetingComponent::SetTarget(AActor* NewTarget)
 {
 	if (NewTarget == CurrentTarget) return;
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red,
-	FString::Printf(TEXT("SetTarget on: %s, NewTarget: %s"),
-		*GetName(),
-		NewTarget ? *NewTarget->GetName() : TEXT("NULL")));
+
 	AActor* OldTarget = CurrentTarget;
 	CurrentTarget = NewTarget;
 	CachedTargetOfTarget = nullptr;
@@ -113,8 +109,17 @@ AActor* UHR_UnitTargetingComponent::CycleTarget(float SearchRadius)
 	});
 	CycleIndex = CycleIndex % Candidates.Num();
 	AActor* Target = Candidates[CycleIndex];
-	CycleIndex++;
+
+	// Skip current target — jump to next
+	if (Target == CurrentTarget && Candidates.Num() > 1)
+	{
+		CycleIndex = (CycleIndex + 1) % Candidates.Num();
+		Target = Candidates[CycleIndex];
+	}
+
+	int32 NextIndex = CycleIndex + 1;
 	SetTarget(Target);
+	CycleIndex = NextIndex;
 	return Target;
 }
 
