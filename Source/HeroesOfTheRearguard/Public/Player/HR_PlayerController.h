@@ -145,7 +145,7 @@ private:
 	void OnTargetingCancelled();
 	
 	// UnitTargeting
-	void OnLMBForUnitTarget();
+	void GetUnitUnderCursor();
 	void TabTarget();
 	UFUNCTION()
 	void OnUnitTargetChanged(AActor* NewTarget);

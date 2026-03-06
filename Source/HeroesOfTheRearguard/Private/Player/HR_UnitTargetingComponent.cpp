@@ -34,6 +34,7 @@ AActor* UHR_UnitTargetingComponent::TryTargetUnderCursor()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow,
 	FString::Printf(TEXT("TryTarget on: %s"), *GetName()));
+	
 	APlayerController* PC = GetPlayerController();
 	if (!PC) return nullptr;
 	FHitResult HitResult;

@@ -143,7 +143,6 @@ void AHR_PlayerController::OnLMBPressed_Internal()
 	{
 	case EPlayerInputMode::Default:
 		if (CameraInputComponent) CameraInputComponent->OnLMBPressed();
-		OnLMBForUnitTarget();
 		break;
 
 	case EPlayerInputMode::Targeting:
@@ -156,6 +155,7 @@ void AHR_PlayerController::OnLMBPressed_Internal()
 
 void AHR_PlayerController::OnLMBReleased_Internal()
 {
+	GetUnitUnderCursor();
 	if (CameraInputComponent) CameraInputComponent->OnLMBReleased();
 }
 
@@ -276,7 +276,7 @@ void AHR_PlayerController::OnTargetingCancelled()
 	// Визуал уже скрыт компонентом — ничего дополнительного
 }
 
-void AHR_PlayerController::OnLMBForUnitTarget()
+void AHR_PlayerController::GetUnitUnderCursor()
 {
 	if (!UnitTargetingComponent) return;
 	if (CurrentInputMode == EPlayerInputMode::Targeting) return;
