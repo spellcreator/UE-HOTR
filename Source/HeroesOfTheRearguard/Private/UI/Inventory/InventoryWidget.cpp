@@ -3,13 +3,13 @@
 
 #include "UI/Inventory/InventoryWidget.h"
 
-#include "Characters/InventoryComponent.h"
+#include "Characters/HR_InventoryComponent.h"
 #include "Components/UniformGridPanel.h"
 #include "UI/Inventory/InventorySlotWidget.h"
 #include "UI/Inventory/ItemTooltipWidget.h"
 
 
-void UInventoryWidget::InitInventory(UInventoryComponent* InvComp)
+void UInventoryWidget::InitInventory(UHR_InventoryComponent* InvComp)
 {
 	InventoryComp = InvComp;
 	SlotGrid->ClearChildren();

@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "InventorySlotWidget.generated.h"
 
-class UInventoryComponent;
+class UHR_InventoryComponent;
 class UBorder;
 class UTextBlock;
 class UImage;
@@ -35,7 +35,7 @@ public:
 	int32 SlotIndex = -1;
 	
 	UPROPERTY()
-	UInventoryComponent* InventoryComp;
+	UHR_InventoryComponent* InventoryComp;
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateSlot(const FInventorySlot& SlotData);

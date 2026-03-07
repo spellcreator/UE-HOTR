@@ -43,6 +43,7 @@ void UHR_AbilityTargetingComponent::BeginTargeting(const FGameplayTag& AbilityTa
     CurrentTargetingRadius = Ability->TargetingData.AOERadius;
     CurrentTargetingMaxCastRange = Ability->TargetingData.AbilityMaxRange;
     CurrentTargetingMinCastRange = Ability->TargetingData.AbilityMinRange;
+    CurrentConeHalfAngle = Ability->TargetingData.ConeHalfAngleDeg;
     
     // Применяем визуал
     UMaterialInterface* Mat = IsValid(Ability->TargetingData.DecalMaterial)
@@ -50,7 +51,7 @@ void UHR_AbilityTargetingComponent::BeginTargeting(const FGameplayTag& AbilityTa
         : GroundTargetDecalMaterial;
 
     ShowDecal(CurrentTargetingRadius, CurrentTargetingType, Mat);
-    UpdateDecalTransform(CurrentTargetLocation, CurrentTargetingRadius);
+    UpdateDecalTransform(CurrentTargetLocation, CurrentTargetingRadius,CurrentTargetingRadius,  FRotator(-90.f, 0.f, 0.f));
 
     SetComponentTickEnabled(true);
 }
@@ -130,12 +131,11 @@ void UHR_AbilityTargetingComponent::UpdateGroundTargetLocation()
     }
 
     CurrentTargetLocation = HitLocation;
-    UpdateDecalTransform(CurrentTargetLocation, CurrentTargetingRadius);
+    UpdateDecalTransform(CurrentTargetLocation, CurrentTargetingRadius, CurrentTargetingRadius, FRotator(-90.f, 0.f, 0.f));
 }
 
 void UHR_AbilityTargetingComponent::UpdateDirectionalArc()
 {
-    // Для направленных способностей — показываем конус от персонажа в сторону курсора
     FVector HitLocation;
     if (!GetGroundLocationUnderCursor(HitLocation)) return;
 
@@ -144,12 +144,19 @@ void UHR_AbilityTargetingComponent::UpdateDirectionalArc()
 
     const FVector OwnerLoc = Owner->GetActorLocation();
     FVector Direction = (HitLocation - OwnerLoc).GetSafeNormal2D();
-    
-    // Ставим декаль на дальность CurrentRange от персонажа
-    const FVector DecalLoc = OwnerLoc + Direction * (CurrentTargetingMaxCastRange * 0.5f);
+
+    // Центр декали — ровно на половине дальности
+    FVector DecalLoc = OwnerLoc + Direction * (CurrentTargetingMaxCastRange * 0.5f);
+    DecalLoc.Z = HitLocation.Z;
+
     CurrentTargetLocation = OwnerLoc + Direction * CurrentTargetingMaxCastRange;
-    
-    UpdateDecalTransform(DecalLoc, CurrentTargetingRadius);
+
+    const float Yaw = FMath::Atan2(Direction.Y, Direction.X) * (180.f / PI) + -90.f;
+
+    // Квадрат со стороной = ConeRange → материал сам маскирует конус
+    const float HalfSize = CurrentTargetingMaxCastRange * 0.5f;
+
+    UpdateDecalTransform(DecalLoc, HalfSize, HalfSize, FRotator(-90.f, Yaw, 0.f));
 }
 
 bool UHR_AbilityTargetingComponent::GetGroundLocationUnderCursor(FVector& OutLocation) const
@@ -218,11 +225,14 @@ void UHR_AbilityTargetingComponent::HideDecal()
         TargetingDecal->SetVisibility(false);
 }
 
-void UHR_AbilityTargetingComponent::UpdateDecalTransform(const FVector& Location, float Radius)
+void UHR_AbilityTargetingComponent::UpdateDecalTransform(
+    const FVector& Location, float HalfLength, float HalfWidth, const FRotator& Rotation)
 {
     if (!IsValid(TargetingDecal)) return;
     TargetingDecal->SetWorldLocation(Location + FVector(0, 0, 50.f));
-    TargetingDecal->DecalSize = FVector(128.f, Radius, Radius);
+    TargetingDecal->SetWorldRotation(Rotation);
+    // X = глубина проекции, Y = вдоль направления, Z = поперёк
+    TargetingDecal->DecalSize = FVector(128.f, HalfWidth, HalfLength);
 }
 
 APlayerController* UHR_AbilityTargetingComponent::GetPlayerController() const

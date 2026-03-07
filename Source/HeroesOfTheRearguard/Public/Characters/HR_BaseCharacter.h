@@ -39,16 +39,8 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FASCInitialized OnASCInitialized;
 	
-	UFUNCTION(BlueprintCallable, Category = "Crash|BaseCharacter|Death")
-	virtual void HandleRespawn();
-	UFUNCTION(BlueprintCallable, Category = "Crash|Attributes")
-	void ResetAttributes();
-	
 	/*UPROPERTY(EditAnywhere, Category = "Crash|AI")
 	float SearchRange{1000.f};*/
-	
-	UPROPERTY(EditAnywhere, Category = "Crash|BaseCharacter|Target")
-	FText TargetDisplayName;
 
 	virtual bool CanBeTargeted_Implementation() const override;
 	virtual FText GetTargetDisplayName_Implementation() const override;
@@ -67,6 +59,9 @@ public:
 	
 protected:	
 	
+	UPROPERTY(EditAnywhere, Category = "Crash|BaseCharacter|Target")
+	FText TargetDisplayName;
+	
 	void GiveStartupAbilities();
 	
 	void InitializeAttributes() const;
@@ -81,9 +76,6 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category="Crash|BaseCharacter|Effects")
 	TSubclassOf<UGameplayEffect> InitializeAttributesEffect;
-	
-	UPROPERTY(EditDefaultsOnly, Category="Crash|BaseCharacter|Effects")
-	TSubclassOf<UGameplayEffect> ResetAttributesEffect;
 	
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess="true"), Replicated)
 	bool bAlive = true;

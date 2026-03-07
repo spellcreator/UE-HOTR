@@ -1,17 +1,17 @@
 ﻿// 
 
 
-#include "Tasks/AbilityTask_JumpToLocation.h"
+#include "Tasks/HR_AbilityTask_JumpToLocation.h"
 
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 
-UAbilityTask_JumpToLocation* UAbilityTask_JumpToLocation::JumpToLocation(UGameplayAbility* OwningAbility,
+UHR_AbilityTask_JumpToLocation* UHR_AbilityTask_JumpToLocation::JumpToLocation(UGameplayAbility* OwningAbility,
 	FVector TargetLocation, float Duration, float ArcHeight, UCurveFloat* HeightCurve, UCurveFloat* LateralCurve, float NearingLandTime)
 {
 		
-	UAbilityTask_JumpToLocation* JumpTask = NewAbilityTask<UAbilityTask_JumpToLocation>(OwningAbility);
+	UHR_AbilityTask_JumpToLocation* JumpTask = NewAbilityTask<UHR_AbilityTask_JumpToLocation>(OwningAbility);
 	JumpTask->EndLocation   = TargetLocation;
 	JumpTask->TotalDuration = FMath::Max(Duration, 0.1f);
 	JumpTask->MaxArcHeight  = FMath::Max(ArcHeight, 0.f); // ✅ Units, не [0..1]
@@ -23,7 +23,7 @@ UAbilityTask_JumpToLocation* UAbilityTask_JumpToLocation::JumpToLocation(UGamepl
 	return JumpTask;
 }
 
-void UAbilityTask_JumpToLocation::Activate()
+void UHR_AbilityTask_JumpToLocation::Activate()
 {
 	Super::Activate();
 	
@@ -43,7 +43,7 @@ void UAbilityTask_JumpToLocation::Activate()
 	OwnerCharacter->GetCharacterMovement()->StopMovementImmediately();
 }
 
-void UAbilityTask_JumpToLocation::TickTask(float DeltaTime)
+void UHR_AbilityTask_JumpToLocation::TickTask(float DeltaTime)
 {
 	Super::TickTask(DeltaTime);
 	
@@ -90,7 +90,7 @@ void UAbilityTask_JumpToLocation::TickTask(float DeltaTime)
 	}
 }
 
-FVector UAbilityTask_JumpToLocation::ComputePosition(float Alpha) const
+FVector UHR_AbilityTask_JumpToLocation::ComputePosition(float Alpha) const
 {
 	// --- Горизонталь ---
 	float LateralAlpha = Alpha;
@@ -117,7 +117,7 @@ FVector UAbilityTask_JumpToLocation::ComputePosition(float Alpha) const
 	return LinearPos + FVector(0.f, 0.f, MaxArcHeight * HeightAlpha);
 }
 
-void UAbilityTask_JumpToLocation::OnDestroy(bool bInOwnerFinished)
+void UHR_AbilityTask_JumpToLocation::OnDestroy(bool bInOwnerFinished)
 {
 	Super::OnDestroy(bInOwnerFinished);
 	// Гарантируем восстановление режима движения при любом завершении

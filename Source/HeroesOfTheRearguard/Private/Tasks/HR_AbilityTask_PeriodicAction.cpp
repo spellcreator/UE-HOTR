@@ -1,12 +1,12 @@
 ﻿// 
 
 
-#include "Tasks/AbilityTask_PeriodicAction.h"
+#include "Tasks/HR_AbilityTask_PeriodicAction.h"
 
-UAbilityTask_PeriodicAction* UAbilityTask_PeriodicAction::PeriodicAction(UGameplayAbility* OwningAbility, float Period,
-	float TotalDuration, bool bFireImmediately)
+UHR_AbilityTask_PeriodicAction* UHR_AbilityTask_PeriodicAction::PeriodicAction(UGameplayAbility* OwningAbility, float Period,
+                                                                               float TotalDuration, bool bFireImmediately)
 {
-	auto* Task = NewAbilityTask<UAbilityTask_PeriodicAction>(OwningAbility);
+	auto* Task = NewAbilityTask<UHR_AbilityTask_PeriodicAction>(OwningAbility);
 	Task->Period          = FMath::Max(Period, 0.05f);
 	Task->TotalDuration   = TotalDuration;
 	Task->bFireImmediately = bFireImmediately;
@@ -14,7 +14,7 @@ UAbilityTask_PeriodicAction* UAbilityTask_PeriodicAction::PeriodicAction(UGamepl
 	return Task;
 }
 
-void UAbilityTask_PeriodicAction::Activate()
+void UHR_AbilityTask_PeriodicAction::Activate()
 {
 	Super::Activate();
 	
@@ -25,7 +25,7 @@ void UAbilityTask_PeriodicAction::Activate()
 	}
 }
 
-void UAbilityTask_PeriodicAction::TickTask(float DeltaTime)
+void UHR_AbilityTask_PeriodicAction::TickTask(float DeltaTime)
 {
 	Super::TickTask(DeltaTime);
 	
@@ -48,7 +48,7 @@ void UAbilityTask_PeriodicAction::TickTask(float DeltaTime)
 	}
 }
 
-void UAbilityTask_PeriodicAction::OnDestroy(bool bInOwnerFinished)
+void UHR_AbilityTask_PeriodicAction::OnDestroy(bool bInOwnerFinished)
 {
 	Super::OnDestroy(bInOwnerFinished);
 }

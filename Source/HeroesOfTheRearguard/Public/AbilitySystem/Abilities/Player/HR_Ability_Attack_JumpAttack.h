@@ -7,7 +7,7 @@
 class UCurveFloat;
 class UAnimMontage;
 class UAbilityTask_PlayMontageAndWait;
-class UAbilityTask_JumpToLocation;
+class UHR_AbilityTask_JumpToLocation;
 
 
 /**
@@ -63,7 +63,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<UAbilityTask_PlayMontageAndWait> MontageTask;
 	UPROPERTY()
-	TObjectPtr<UAbilityTask_JumpToLocation> JumpTask;
+	TObjectPtr<UHR_AbilityTask_JumpToLocation> JumpTask;
 	
 	void JumpStart();
 	void DamageEvent();

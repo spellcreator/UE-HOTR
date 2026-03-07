@@ -23,7 +23,7 @@ class HEROESOFTHEREARGUARD_API UHR_Ability_AutoAttack : public UHR_CombatAbility
 
 public:
 	UHR_Ability_AutoAttack();
-
+	/*
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
@@ -41,5 +41,5 @@ protected:
 private:
 	UFUNCTION() void OnDamageNotify(FGameplayEventData Payload);
 	UFUNCTION() void OnMontageCompleted();
-	UFUNCTION() void OnMontageInterrupted();
+	UFUNCTION() void OnMontageInterrupted();*/
 };

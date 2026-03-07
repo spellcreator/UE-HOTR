@@ -2,7 +2,7 @@
 
 #include "Characters/HR_PlayerCharacter.h"
 #include "GameplayTags/HRTags.h"
-#include "Tasks/AbilityTask_JumpToLocation.h"
+#include "Tasks/HR_AbilityTask_JumpToLocation.h"
 
 UHR_Ability_Attack_JumpAttack::UHR_Ability_Attack_JumpAttack()
 {
@@ -66,7 +66,7 @@ void UHR_Ability_Attack_JumpAttack::OnDamageNotify(FGameplayEventData /*Payload*
 
 void UHR_Ability_Attack_JumpAttack::JumpStart()
 {
-    JumpTask = UAbilityTask_JumpToLocation::JumpToLocation(
+    JumpTask = UHR_AbilityTask_JumpToLocation::JumpToLocation(
         this, CachedTargetLocation, FlightDuration, ArcStrength, JumpHeightCurve, nullptr);
     JumpTask->OnCompleted.AddDynamic(this, &ThisClass::OnJumpCompleted);
     JumpTask->OnInterrupted.AddDynamic(this, &ThisClass::OnJumpInterrupted);

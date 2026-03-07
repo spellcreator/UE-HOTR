@@ -122,14 +122,12 @@ void UHR_CameraInputComponent::OnLMBReleased()
 {
 	bLMBHeld = false;
 	
-
 	if (bRMBHeld)
 	{
 		// ПКМ ещё зажата — просто возвращаем HardLook, SoftLook возврат не нужен
 		ApplyHardLook();
 		return;
 	}
-
 	ShowCursor();
 
 	// Запускаем плавный возврат камеры за спину персонажа

@@ -17,8 +17,8 @@ AHR_BaseCharacter::AHR_BaseCharacter()
 	SelectionDecalComponent->SetupAttachment(GetRootComponent());
 	SelectionDecalComponent->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
 	SelectionDecalComponent->DecalSize = FVector(200.f, 128.f, 128.f);
-	SelectionDecalComponent->SetHiddenInGame(true);   // <-- hidden at start, NOT SetVisibility
-	SelectionDecalComponent->SetVisibility(true);       // <-- keep editor-visible so you can see it in viewport
+	SelectionDecalComponent->SetHiddenInGame(true);  
+	SelectionDecalComponent->SetVisibility(true);       
 	SelectionDecalComponent->bDestroyOwnerAfterFade = false;
 }
 
@@ -66,21 +66,6 @@ void AHR_BaseCharacter::OnHealthChange(const FOnAttributeChangeData& AttributeCh
 void AHR_BaseCharacter::HandleDeath()
 {
 	bAlive = false;
-}
-
-void AHR_BaseCharacter::HandleRespawn()
-{
-	bAlive = true;
-}
-
-void AHR_BaseCharacter::ResetAttributes()
-{
-	/*checkf(IsValid(ResetAttributesEffect), TEXT("ResetAttributesEffect not set"))
-	if (IsValid(GetAbilitySystemComponent())) return;
-	
-	FGameplayEffectContextHandle ContextHandle =  GetAbilitySystemComponent()->MakeEffectContext();
-	FGameplayEffectSpecHandle SpecHandle =  GetAbilitySystemComponent()->MakeOutgoingSpec(ResetAttributesEffect, 1.f, ContextHandle);
-	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());*/
 }
 
 // ---- IHR_Targetable Implementation ----------------------------------------

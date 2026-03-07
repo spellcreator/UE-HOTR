@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask.h"
-#include "AbilityTask_JumpToLocation.generated.h"
+#include "HR_AbilityTask_JumpToLocation.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJumpToLocationDelegate);
 
@@ -12,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FJumpToLocationDelegate);
  * 
  */
 UCLASS()
-class HEROESOFTHEREARGUARD_API UAbilityTask_JumpToLocation : public UAbilityTask
+class HEROESOFTHEREARGUARD_API UHR_AbilityTask_JumpToLocation : public UAbilityTask
 {
 	GENERATED_BODY()
 	
@@ -29,7 +29,7 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks",
 			  meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "true"))
-	static UAbilityTask_JumpToLocation* JumpToLocation(
+	static UHR_AbilityTask_JumpToLocation* JumpToLocation(
 		UGameplayAbility* OwningAbility,
 		FVector           TargetLocation,
 		float             Duration     = 0.8f,

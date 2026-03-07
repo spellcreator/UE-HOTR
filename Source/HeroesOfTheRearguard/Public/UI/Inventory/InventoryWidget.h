@@ -7,7 +7,7 @@
 #include "InventoryWidget.generated.h"
 
 class UItemTooltipWidget;
-class UInventoryComponent;
+class UHR_InventoryComponent;
 class UInventorySlotWidget;
 class UUniformGridPanel;
 /**
@@ -31,7 +31,7 @@ public:
 	UPROPERTY()
 	TArray<UInventorySlotWidget*> SlotWidgets;
 
-	void InitInventory(UInventoryComponent* InvComp);
+	void InitInventory(UHR_InventoryComponent* InvComp);
 	UFUNCTION()
 	void RefreshAllSlots();
 	
@@ -43,7 +43,7 @@ public:
 
 private:
 	UPROPERTY()
-	UInventoryComponent* InventoryComp;
+	UHR_InventoryComponent* InventoryComp;
 
 	int32 Columns = 5;
 };

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask.h"
-#include "AbilityTask_PeriodicAction.generated.h"
+#include "HR_AbilityTask_PeriodicAction.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPeriodicActionDelegate);
 
@@ -12,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPeriodicActionDelegate);
  * 
  */
 UCLASS()
-class HEROESOFTHEREARGUARD_API UAbilityTask_PeriodicAction : public UAbilityTask
+class HEROESOFTHEREARGUARD_API UHR_AbilityTask_PeriodicAction : public UAbilityTask
 {
 	GENERATED_BODY()
 	
@@ -22,7 +22,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category="Ability|Tasks",
 	meta=(HidePin="OwningAbility", DefaultToSelf="OwningAbility", BlueprintInternalUseOnly="true"))
-	static UAbilityTask_PeriodicAction* PeriodicAction(
+	static UHR_AbilityTask_PeriodicAction* PeriodicAction(
 		UGameplayAbility* OwningAbility,
 		float Period,          // интервал между вызовами
 		float TotalDuration,   // общая длительность (<=0 = бесконечно)

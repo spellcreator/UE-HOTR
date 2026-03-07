@@ -18,62 +18,71 @@ void UHR_CombatAbility::ApplyDamage(AActor* Target)
     ApplyDamageEffect(TargetASC);
 }
 
-void UHR_CombatAbility::ApplyAOE(float RadiusOverride)
+void UHR_CombatAbility::ApplyAOE()
 {
-    
-    TArray<AActor*> Targets = FindTargetsInAOE(RadiusOverride);
+    TArray<AActor*> Targets = FindTargetsInHitbox();
     for (AActor* Target : Targets)
     {
         ApplyDamage(Target);
     }
 }
 
-TArray<AActor*> UHR_CombatAbility::FindTargetsInAOE(float Radius) const
+TArray<AActor*> UHR_CombatAbility::FindTargetsInHitbox() const
 {
     AActor* Avatar = GetAvatarActorFromActorInfo();
     if (!IsValid(Avatar)) return {};
 
-    float FinalRadius;
-    if (Radius >= 0.f)
+    // Определяем радиус: для target-способностей берём из TargetingData, иначе из DamageProfile
+    auto GetRadius = [&]() -> float
     {
-        // Явный override — используем как есть
-        FinalRadius = Radius;
-    }
-    else if (TargetingData.TargetingType == EHR_AbilityTargetingType::Instant)
-    {
-        // Instant-способность: радиус из DamageProfile
-        FinalRadius = DamageProfile.HitboxRadius;
-    }
-    else
-    {
-        // Target-способность: радиус из TargetingData
-        FinalRadius = TargetingData.AOERadius;
-    }
-    
+        if (TargetingData.TargetingType != EHR_AbilityTargetingType::Instant
+            && TargetingData.AOERadius > 0.f)
+        {
+            return TargetingData.AOERadius;
+        }
+        return DamageProfile.HitboxRadius;
+    };
+
+    const FVector Direction = GetHitboxDirection();
+
     return UHR_BlueprintLibrary::HitboxOverlapTest(
         Avatar,
-        FinalRadius,
+        DamageProfile.HitboxShape,
+        GetRadius(),
         DamageProfile.ForwardOffset,
         DamageProfile.ElevationOffset,
+        Direction,
+        DamageProfile.ConeHalfAngleDeg,
+        DamageProfile.ConeRange,
+        DamageProfile.BoxHalfExtent,
         bDrawDebugs
     );
 }
 
 // ─── Private ─────────────────────────────────────────────────────────────────
 
+FVector UHR_CombatAbility::GetHitboxDirection() const
+{
+    if (!HitboxDirectionOverride.IsNearlyZero())
+    {
+        return HitboxDirectionOverride.GetSafeNormal2D();
+    }
+
+    const AActor* Avatar = GetAvatarActorFromActorInfo();
+    if (IsValid(Avatar))
+    {
+        return Avatar->GetActorForwardVector().GetSafeNormal2D();
+    }
+    return FVector::ForwardVector;
+}
+
 void UHR_CombatAbility::ApplyDamageEffect(UAbilitySystemComponent* TargetASC)
 {
-
-    if (!TargetASC || !DamageEffect) 
-    {
-        return;
-    }
+    if (!TargetASC || !DamageEffect) return;
 
     UAbilitySystemComponent* InstigatorASC = GetAbilitySystemComponentFromActorInfo();
-    if (!InstigatorASC)
-    {
-        return;
-    }
+    if (!InstigatorASC) return;
+
     FGameplayEffectContextHandle Context = InstigatorASC->MakeEffectContext();
     Context.AddInstigator(GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo());
 
@@ -81,7 +90,6 @@ void UHR_CombatAbility::ApplyDamageEffect(UAbilitySystemComponent* TargetASC)
         DamageEffect, GetAbilityLevel(), Context);
     if (!Spec.IsValid()) return;
 
-    // Передаём величину урона через SetByCaller
     const FGameplayTag Tag = DamageProfile.SetByCallerTag.IsValid()
         ? DamageProfile.SetByCallerTag
         : HRTags::SetByCaller::PlayerMelee;

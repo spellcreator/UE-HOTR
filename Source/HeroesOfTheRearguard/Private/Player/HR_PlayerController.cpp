@@ -8,7 +8,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Characters/HR_BaseCharacter.h"
 #include "Characters/HR_PlayerCharacter.h"
-#include "Characters/InventoryComponent.h"
+#include "Characters/HR_InventoryComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameplayTags/HRTags.h"
@@ -62,6 +62,7 @@ void AHR_PlayerController::SetupInputComponent()
 	EIC->BindAction(ChargeAction,     ETriggerEvent::Started, this, &AHR_PlayerController::ChargeAbility);
 	EIC->BindAction(JumpAttackAction, ETriggerEvent::Started, this, &AHR_PlayerController::JumpAttack);
 	EIC->BindAction(BladeFuryAction, ETriggerEvent::Started, this, &AHR_PlayerController::BladeFury);
+	EIC->BindAction(DirectionalArcAction, ETriggerEvent::Started, this, &AHR_PlayerController::DirectionalArc);
 	
 	// Inv
 	EIC->BindAction(InventoryAction, ETriggerEvent::Started, this, &AHR_PlayerController::ToggleInventory);
@@ -71,15 +72,14 @@ void AHR_PlayerController::SetupInputComponent()
 void AHR_PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	AHR_PlayerCharacter* PlayerCharacter = Cast<AHR_PlayerCharacter>(GetPawn());
-	if (!PlayerCharacter) return;
+	if (!CachedPlayerCharacter) return;
 
-	CameraBoom = PlayerCharacter->FindComponentByClass<USpringArmComponent>();
+	CameraBoom = CachedPlayerCharacter->FindComponentByClass<USpringArmComponent>();
 
 	// --- Fetch components from Character (they already exist as subobjects) ---
-	CameraInputComponent   = PlayerCharacter->GetCameraInputComponent();
-	TargetingComponent     = PlayerCharacter->GetAbilityTargetingComponent();
-	UnitTargetingComponent = PlayerCharacter->GetUnitTargetingComponent();
+	CameraInputComponent   = CachedPlayerCharacter->GetCameraInputComponent();
+	TargetingComponent     = CachedPlayerCharacter->GetAbilityTargetingComponent();
+	UnitTargetingComponent = CachedPlayerCharacter->GetUnitTargetingComponent();
 
 	// Init camera component if needed
 	if (CameraInputComponent)
@@ -109,10 +109,16 @@ void AHR_PlayerController::BeginPlay()
 	if (InventoryWidgetClass)
 	{
 		InventoryWidget = CreateWidget<UInventoryWidget>(this, InventoryWidgetClass);
-		InventoryWidget->InitInventory(PlayerCharacter->GetInventoryComponent());
+		InventoryWidget->InitInventory(CachedPlayerCharacter->GetInventoryComponent());
 		InventoryWidget->AddToViewport();
 		InventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
+}
+
+void AHR_PlayerController::OnPossess(APawn* NewPawn)
+{
+	Super::OnPossess(NewPawn);
+	CachedPlayerCharacter = Cast<AHR_PlayerCharacter>(NewPawn);
 }
 
 
@@ -123,7 +129,7 @@ void AHR_PlayerController::OnUnitTargetChanged(AActor* NewTarget)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Camera input — тонкие обёртки, вся логика в компоненте
+// MouseInput
 // ─────────────────────────────────────────────────────────────────────────────
 
 void AHR_PlayerController::OnRMBPressed_Internal()
@@ -142,13 +148,17 @@ void AHR_PlayerController::OnLMBPressed_Internal()
 	switch(CurrentInputMode)
 	{
 	case EPlayerInputMode::Default:
+		bLMBConsumedByTargeting = false;
 		if (CameraInputComponent) CameraInputComponent->OnLMBPressed();
 		break;
 
 	case EPlayerInputMode::Targeting:
+		bLMBConsumedByTargeting = true;
 		ConfirmTargeting();
 		break;
+        
 	case EPlayerInputMode::UI:
+		bLMBConsumedByTargeting = false;
 		break;
 	}
 }
@@ -156,7 +166,13 @@ void AHR_PlayerController::OnLMBPressed_Internal()
 void AHR_PlayerController::OnLMBReleased_Internal()
 {
 	GetUnitUnderCursor();
-	if (CameraInputComponent) CameraInputComponent->OnLMBReleased();
+    
+	if (!bLMBConsumedByTargeting)
+	{
+		if (CameraInputComponent) CameraInputComponent->OnLMBReleased();
+	}
+    
+	bLMBConsumedByTargeting = false;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -233,7 +249,6 @@ void AHR_PlayerController::ConfirmTargeting()
 {
 	CurrentInputMode = EPlayerInputMode::Default;
 	if (!TargetingComponent->IsTargeting()) return;
-	
 	TargetingComponent->ConfirmTargeting();
 }
 
@@ -268,7 +283,8 @@ void AHR_PlayerController::OnTargetingConfirmed(FVector TargetLocation)
 	EventData.Instigator = GetPawn();
 	EventData.TargetData.Add(LocationData);
 
-	int32 TriggeredCount = ASC->HandleGameplayEvent(Tag, &EventData);
+	//int32 TriggeredCount = ASC->HandleGameplayEvent(Tag, &EventData); if need check ability count
+	ASC->HandleGameplayEvent(Tag, &EventData);
 }
 
 void AHR_PlayerController::OnTargetingCancelled()
@@ -301,14 +317,13 @@ void AHR_PlayerController::LMBAbility()
 
 void AHR_PlayerController::ChargeAbility()
 {
-	TryActivateOrBeginTargeting(HRTags::HRAbilities::ChargeAbility);
+	//TryActivateOrBeginTargeting(HRTags::HRAbilities::ChargeAbility);
 	
-	AHR_PlayerCharacter* PlayerCharacter = Cast<AHR_PlayerCharacter>(GetPawn());
-	if (!PlayerCharacter) return;
+
+	if (!CachedPlayerCharacter) return;
 	
 	// Убрать после тестов
-
-	PlayerCharacter->GetInventoryComponent()->DebugFillInventory();
+	CachedPlayerCharacter->GetInventoryComponent()->DebugFillInventory();
 }
 
 void AHR_PlayerController::JumpAttack()
@@ -321,14 +336,17 @@ void AHR_PlayerController::BladeFury()
 	TryActivateOrBeginTargeting(HRTags::HRAbilities::BladeFury);
 }
 
+void AHR_PlayerController::DirectionalArc()
+{
+	TryActivateOrBeginTargeting(HRTags::HRAbilities::DirectionalArc);
+}
+
 void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag)
 {
 	if (!isAlive()) return;
 	
-	AHR_BaseCharacter* Char = Cast<AHR_BaseCharacter>(GetPawn());
-	if (!Char) return;
-
-	UHR_AbilitySystemComponent* ASC = Cast<UHR_AbilitySystemComponent>(Char->GetAbilitySystemComponent());
+	if (!CachedPlayerCharacter) return;
+	UHR_AbilitySystemComponent* ASC = Cast<UHR_AbilitySystemComponent>(CachedPlayerCharacter->GetAbilitySystemComponent());
 	if (!ASC) return;
 
 	if (TargetingComponent->IsTargeting())
@@ -403,8 +421,7 @@ void AHR_PlayerController::ToggleInventory()
 
 bool AHR_PlayerController::isAlive() const
 {
-	AHR_BaseCharacter* BaseCharacter = Cast<AHR_BaseCharacter>(GetPawn());
-	if (!IsValid(BaseCharacter)) return false;
-	return BaseCharacter->IsAlive();
+	if (!IsValid(CachedPlayerCharacter)) return false;
+	return CachedPlayerCharacter->IsAlive();
 }
 

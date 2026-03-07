@@ -5,7 +5,7 @@
 #include "Invenotry/ItemData.h"
 #include "Invenotry/InventorySlot.h"
 #include "Blueprint/DragDropOperation.h"
-#include "Characters/InventoryComponent.h"
+#include "Characters/HR_InventoryComponent.h"
 #include "Components/Border.h"
 #include "Components/PanelWidget.h"
 #include "UI/Inventory/InventoryWidget.h"

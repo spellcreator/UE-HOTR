@@ -25,6 +25,9 @@ struct FAbilityTargetingData
 
     UPROPERTY(EditDefaultsOnly, meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
     float AbilityMinRange = 0.f;
+    
+    UPROPERTY(EditDefaultsOnly, meta=(EditCondition="TargetingType == EHR_AbilityTargetingType::DirectionalArc"))
+    float ConeHalfAngleDeg = 45.f;
 
     UPROPERTY(EditDefaultsOnly,meta=(EditCondition="TargetingType != EHR_AbilityTargetingType::Instant"))
     TObjectPtr<UMaterialInterface> DecalMaterial = nullptr;

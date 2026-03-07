@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Invenotry/InventorySlot.h"
-#include "InventoryComponent.generated.h"
+#include "HR_InventoryComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
 
@@ -24,11 +24,11 @@ struct FDebugFillEntry
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class HEROESOFTHEREARGUARD_API UInventoryComponent : public UActorComponent
+class HEROESOFTHEREARGUARD_API UHR_InventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
 public:
-	UInventoryComponent();
+	UHR_InventoryComponent();
 
 	// --- Настройки ---
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")

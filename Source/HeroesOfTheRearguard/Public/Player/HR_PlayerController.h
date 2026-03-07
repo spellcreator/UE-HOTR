@@ -8,9 +8,10 @@
 #include "GameFramework/PlayerController.h"
 #include "HR_PlayerController.generated.h"
 
+class AHR_PlayerCharacter;
 class UHR_UnitTargetingComponent;
 class UInventoryWidget;
-class UInventoryComponent;
+class UHR_InventoryComponent;
 class UHR_CameraInputComponent;
 class UHR_AbilityTargetActorComponent;
 class UInputMappingContext;
@@ -38,6 +39,7 @@ class HEROESOFTHEREARGUARD_API AHR_PlayerController : public APlayerController
 protected:
 	virtual void SetupInputComponent() override;
 	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* NewPawn) override;
 
 	UPROPERTY()
 	TObjectPtr<USpringArmComponent> CameraBoom = nullptr;
@@ -53,7 +55,12 @@ protected:
 
 	
 private:
+	
+	UPROPERTY()
+	TObjectPtr<AHR_PlayerCharacter> CachedPlayerCharacter;
+	
 	EPlayerInputMode CurrentInputMode = EPlayerInputMode::Default;
+	bool bLMBConsumedByTargeting = false;
 	
 	// ─── Компоненты ───────────────────────────────────────────────────────────
 
@@ -73,7 +80,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UInventoryWidget> InventoryWidgetClass;
 
-	// ─── Input Actions ────────────────────────────────────────────────────────
+	// ─── Input Mapping ────────────────────────────────────────────────────────
 
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input")
 	TArray<TObjectPtr<UInputMappingContext>> InputMappingContexts;
@@ -118,6 +125,8 @@ private:
 	TObjectPtr<UInputAction> JumpAttackAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Abilities")
 	TObjectPtr<UInputAction> BladeFuryAction;
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Abilities")
+	TObjectPtr<UInputAction> DirectionalArcAction;
 	
 	// INVENTORY
 	
@@ -162,9 +171,10 @@ private:
 	void ChargeAbility();
 	void JumpAttack();
 	void BladeFury();
+	void DirectionalArc();
 
 	void TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag);
 	
-	// inve
+	// inventory
 	void ToggleInventory();
 };

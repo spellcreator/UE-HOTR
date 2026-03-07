@@ -70,6 +70,7 @@ private:
     float CurrentTargetingRadius = 300.f;
     float CurrentTargetingMaxCastRange = 1200.f;
     float CurrentTargetingMinCastRange = 1200.f;
+	float CurrentConeHalfAngle = 45.f;
 
     FVector CurrentTargetLocation = FVector::ZeroVector;
 
@@ -87,7 +88,8 @@ private:
 	
 	void ShowDecal(float Radius, EHR_AbilityTargetingType Type, UMaterialInterface* Material);
     void HideDecal();
-    void UpdateDecalTransform(const FVector& Location, float Radius);
+	void UpdateDecalTransform(const FVector& Location, float HalfLength, float HalfWidth, const FRotator& Rotation);
+
     
     
     bool GetGroundLocationUnderCursor(FVector& OutLocation) const;

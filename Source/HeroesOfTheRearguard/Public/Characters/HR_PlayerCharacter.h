@@ -9,7 +9,7 @@
 class UHR_UnitTargetingComponent;
 class UHR_AbilityTargetingComponent;
 class UHR_CameraInputComponent;
-class UInventoryComponent;
+class UHR_InventoryComponent;
 class UInventoryWidget;
 class UCameraComponent;
 class USpringArmComponent;
@@ -32,7 +32,7 @@ public:
 	UHR_CameraInputComponent* GetCameraInputComponent();
 	UHR_AbilityTargetingComponent* GetAbilityTargetingComponent();
 	UHR_UnitTargetingComponent* GetUnitTargetingComponent();
-	UInventoryComponent* GetInventoryComponent();
+	UHR_InventoryComponent* GetInventoryComponent();
 
 	UPROPERTY()
 	TObjectPtr<UInventoryWidget> InventoryWidget;
@@ -52,7 +52,7 @@ private:
 	TObjectPtr<UHR_UnitTargetingComponent> UnitTargetingComponent;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Crash|PlayerCharacter|Inventory")
-	TObjectPtr<UInventoryComponent> InventoryComponent;
+	TObjectPtr<UHR_InventoryComponent> InventoryComponent;
 	
 	UPROPERTY(VisibleAnywhere, Category="Crash|PlayerCharacter|Camera")
 	TObjectPtr<USpringArmComponent> SpringArmComp;

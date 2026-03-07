@@ -1,22 +1,22 @@
 ﻿// 
 
 
-#include "Characters/InventoryComponent.h"
+#include "Characters/HR_InventoryComponent.h"
 
 #include "Invenotry/ItemData.h"
 
-UInventoryComponent::UInventoryComponent()
+UHR_InventoryComponent::UHR_InventoryComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
     Slots.SetNum(MaxSlots);
 }
 
-void UInventoryComponent::BeginPlay()
+void UHR_InventoryComponent::BeginPlay()
 {
     Super::BeginPlay();
 }
 
-bool UInventoryComponent::TryAddItem(UItemData* ItemData, int32 Amount)
+bool UHR_InventoryComponent::TryAddItem(UItemData* ItemData, int32 Amount)
 {
     if (!ItemData || Amount <= 0) return false;
 
@@ -62,7 +62,7 @@ bool UInventoryComponent::TryAddItem(UItemData* ItemData, int32 Amount)
     
 }
 
-bool UInventoryComponent::RemoveItem(int32 SlotIndex, int32 Amount)
+bool UHR_InventoryComponent::RemoveItem(int32 SlotIndex, int32 Amount)
 {
     if (!Slots.IsValidIndex(SlotIndex) || Slots[SlotIndex].IsEmpty())
         return false;
@@ -77,7 +77,7 @@ bool UInventoryComponent::RemoveItem(int32 SlotIndex, int32 Amount)
     return true;
 }
 
-void UInventoryComponent::SwapSlots(int32 IndexA, int32 IndexB)
+void UHR_InventoryComponent::SwapSlots(int32 IndexA, int32 IndexB)
 {
     if (!Slots.IsValidIndex(IndexA) || !Slots.IsValidIndex(IndexB)) return;
 
@@ -98,7 +98,7 @@ void UInventoryComponent::SwapSlots(int32 IndexA, int32 IndexB)
     OnInventoryUpdated.Broadcast();
 }
 
-int32 UInventoryComponent::GetItemCount(UItemData* ItemData) const
+int32 UHR_InventoryComponent::GetItemCount(UItemData* ItemData) const
 {
     int32 Total = 0;
     for (const auto& Slot : Slots)
@@ -108,7 +108,7 @@ int32 UInventoryComponent::GetItemCount(UItemData* ItemData) const
     return Total;
 }
 
-int32 UInventoryComponent::FindStackableSlot(UItemData* ItemData) const
+int32 UHR_InventoryComponent::FindStackableSlot(UItemData* ItemData) const
 {
     for (int32 i = 0; i < Slots.Num(); ++i)
     {
@@ -118,7 +118,7 @@ int32 UInventoryComponent::FindStackableSlot(UItemData* ItemData) const
     return INDEX_NONE;
 }
 
-int32 UInventoryComponent::FindEmptySlot() const
+int32 UHR_InventoryComponent::FindEmptySlot() const
 {
     for (int32 i = 0; i < Slots.Num(); ++i)
     {
@@ -128,7 +128,7 @@ int32 UInventoryComponent::FindEmptySlot() const
 }
 
 
-void UInventoryComponent::DebugFillInventory()
+void UHR_InventoryComponent::DebugFillInventory()
 {
     for (auto& Slot : Slots)
     {

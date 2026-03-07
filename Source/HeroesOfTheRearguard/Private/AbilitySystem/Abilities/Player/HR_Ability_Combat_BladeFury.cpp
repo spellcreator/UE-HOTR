@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/Abilities/Player/HR_Ability_Combat_BladeFury.h"
 
-#include "Tasks/AbilityTask_PeriodicAction.h"
+#include "Tasks/HR_AbilityTask_PeriodicAction.h"
 
 void UHR_Ability_Combat_BladeFury::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                                    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -12,7 +12,7 @@ void UHR_Ability_Combat_BladeFury::ActivateAbility(const FGameplayAbilitySpecHan
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	
 	
-	auto* Task = UAbilityTask_PeriodicAction::PeriodicAction(
+	auto* Task = UHR_AbilityTask_PeriodicAction::PeriodicAction(
 		this, DamagePeriod, AbilityDuration, /*bFireImmediately=*/ bOnActivated);
 	Task->OnPeriodicAction.AddDynamic(this, &ThisClass::OnPeriodicDamage);
 	Task->OnFinished.AddDynamic(this, &ThisClass::OnDurationExpired);

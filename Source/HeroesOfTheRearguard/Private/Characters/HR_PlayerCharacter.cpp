@@ -6,7 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/HR_AttributeSet.h"
 #include "Camera/CameraComponent.h"
-#include "Characters/InventoryComponent.h"
+#include "Characters/HR_InventoryComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -53,7 +53,7 @@ AHR_PlayerCharacter::AHR_PlayerCharacter()
 	UnitTargetingComponent = CreateDefaultSubobject<UHR_UnitTargetingComponent>("UnitTargetingComponent");
 	
 	// Inventory
-	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
+	InventoryComponent = CreateDefaultSubobject<UHR_InventoryComponent>("InventoryComponent");
 }
 
 
@@ -128,7 +128,7 @@ UHR_UnitTargetingComponent* AHR_PlayerCharacter::GetUnitTargetingComponent()
 	return UnitTargetingComponent;
 }
 
-UInventoryComponent* AHR_PlayerCharacter::GetInventoryComponent()
+UHR_InventoryComponent* AHR_PlayerCharacter::GetInventoryComponent()
 {
 	return InventoryComponent;
 }
