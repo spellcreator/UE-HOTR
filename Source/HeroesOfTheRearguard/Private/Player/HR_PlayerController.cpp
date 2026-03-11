@@ -63,6 +63,7 @@ void AHR_PlayerController::SetupInputComponent()
 	EIC->BindAction(JumpAttackAction, ETriggerEvent::Started, this, &AHR_PlayerController::JumpAttack);
 	EIC->BindAction(BladeFuryAction, ETriggerEvent::Started, this, &AHR_PlayerController::BladeFury);
 	EIC->BindAction(DirectionalArcAction, ETriggerEvent::Started, this, &AHR_PlayerController::DirectionalArc);
+	EIC->BindAction(FireBlastAction, ETriggerEvent::Started, this, &AHR_PlayerController::FireBlast);
 	
 	// Inv
 	EIC->BindAction(InventoryAction, ETriggerEvent::Started, this, &AHR_PlayerController::ToggleInventory);
@@ -341,6 +342,11 @@ void AHR_PlayerController::DirectionalArc()
 	TryActivateOrBeginTargeting(HRTags::HRAbilities::DirectionalArc);
 }
 
+void AHR_PlayerController::FireBlast()
+{
+	TryActivateOrBeginTargeting(HRTags::HRAbilities::FireBlast);
+}
+
 void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag)
 {
 	if (!isAlive()) return;
@@ -373,7 +379,7 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& Abili
 		AActor* TargetActor = UnitTargetingComponent->GetCurrentTarget();
 
 		FGameplayAbilityTargetData_ActorArray* ActorData = new FGameplayAbilityTargetData_ActorArray();
-		ActorData->TargetActorArray.Add(TWeakObjectPtr<AActor>(TargetActor));
+		ActorData->TargetActorArray.Add(TWeakObjectPtr(TargetActor));
 
 		FGameplayEventData EventData;
 		EventData.Instigator = GetPawn();

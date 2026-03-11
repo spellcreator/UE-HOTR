@@ -8,6 +8,7 @@ namespace HRTags
 	namespace SetByCaller
 	{
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(PlayerMelee);
+		UE_DECLARE_GAMEPLAY_TAG_EXTERN(Debuff);
 	}
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(None);
 	namespace HRAbilities
@@ -23,6 +24,7 @@ namespace HRTags
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(JumpAttack);
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(BladeFury);
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(DirectionalArc);
+		UE_DECLARE_GAMEPLAY_TAG_EXTERN(FireBlast);
 	}
 	
 	namespace Events

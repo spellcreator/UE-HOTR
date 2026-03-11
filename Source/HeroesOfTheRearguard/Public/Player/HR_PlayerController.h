@@ -128,6 +128,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Abilities")
 	TObjectPtr<UInputAction> DirectionalArcAction;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Abilities")
+	TObjectPtr<UInputAction> FireBlastAction;
+	
 	// INVENTORY
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Crash|PlayerController|Input|Abilities")
@@ -172,6 +175,7 @@ private:
 	void JumpAttack();
 	void BladeFury();
 	void DirectionalArc();
+	void FireBlast();
 
 	void TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag);
 	

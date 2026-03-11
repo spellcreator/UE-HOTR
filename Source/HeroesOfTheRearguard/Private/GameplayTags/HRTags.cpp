@@ -6,6 +6,7 @@ namespace HRTags
 	namespace SetByCaller
 	{
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(PlayerMelee, "HRTags.SetByCaller.PlayerMelee", "Tag SetByCallers PlayerMelee")
+		UE_DEFINE_GAMEPLAY_TAG_COMMENT(Debuff, "HRTags.SetByCaller.Debuff", "Tag SetByCallers Debuff")
 	}
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(None, "HRTags.None", "None")
 	namespace HRAbilities
@@ -21,6 +22,7 @@ namespace HRTags
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(JumpAttack, "HRTags.HRAbilities.JumpAttack", "Tag for JumpAttack Ability")
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(BladeFury, "HRTags.HRAbilities.BladeFury", "Tag for BladeFury Ability")
 		UE_DEFINE_GAMEPLAY_TAG_COMMENT(DirectionalArc, "HRTags.HRAbilities.DirectionalArc", "Tag for DirectionalArc Ability");
+		UE_DEFINE_GAMEPLAY_TAG_COMMENT(FireBlast, "HRTags.HRAbilities.FireBlast", "Tag for FireBlast Ability");
 	}
 	
 	namespace Events
