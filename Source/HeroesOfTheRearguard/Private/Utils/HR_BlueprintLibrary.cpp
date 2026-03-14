@@ -6,7 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayEffectTypes.h"
 #include "AbilitySystem/HR_AttributeSet.h"
-#include "AbilitySystem/Core/HR_HitboxShape.h"
+#include "AbilitySystem/Core/Enums/HR_HitboxShape.h"
 #include "Characters/HR_BaseCharacter.h"
 #include "Engine/OverlapResult.h"
 #include "GamePlayTags/HRTags.h"

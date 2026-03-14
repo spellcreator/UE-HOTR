@@ -3,14 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Core/HR_CombatAbility.h"
+#include "AbilitySystem/Core/HR_InstantAbility.h"
 #include "HR_Ability_Combat_BladeFury.generated.h"
 
+class UHR_CombatModule;
 /**
  * 
  */
 UCLASS()
-class HEROESOFTHEREARGUARD_API UHR_Ability_Combat_BladeFury : public UHR_CombatAbility
+class HEROESOFTHEREARGUARD_API UHR_Ability_Combat_BladeFury : public UHR_InstantAbility
 {
 	GENERATED_BODY()
 public:
@@ -21,6 +22,9 @@ public:
 		const FGameplayEventData* TriggerEventData) override;
 	
 protected:
+	
+	UPROPERTY(EditDefaultsOnly, Instanced, Category="Combat")
+	TObjectPtr<UHR_CombatModule> CombatModule;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "BladeFury")
 	float AbilityDuration = 5.f;

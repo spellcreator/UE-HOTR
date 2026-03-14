@@ -1,16 +1,13 @@
 ﻿#include "AbilitySystem/Abilities/Player/HR_Ability_Attack_JumpAttack.h"
 
+#include "AbilitySystem/Core/HR_CombatModule.h"
 #include "Characters/HR_PlayerCharacter.h"
 #include "GameplayTags/HRTags.h"
 #include "Tasks/HR_AbilityTask_JumpToLocation.h"
 
 UHR_Ability_Attack_JumpAttack::UHR_Ability_Attack_JumpAttack()
 {
-
-    FAbilityTriggerData TriggerData;
-    TriggerData.TriggerTag = HRTags::HRAbilities::JumpAttack;
-    TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
-    AbilityTriggers.Add(TriggerData);
+    SetTriggerTag(HRTags::HRAbilities::JumpAttack);
 }
 
 void UHR_Ability_Attack_JumpAttack::ActivateAbility(
@@ -40,8 +37,16 @@ void UHR_Ability_Attack_JumpAttack::OnJumpCompleted()
     // DamageNotify уже слушается с ActivateAbility — ничего дополнительно не нужно.
     if (!JumpMontage)
     {
-        ApplyAOE();
-        EndAbilitySafe(false);
+        AActor* Avatar = GetAvatarActorFromActorInfo();
+        if (!CombatModule || !Avatar) return;
+
+        CombatModule->ApplyAOE(
+            GetAbilitySystemComponentFromActorInfo(),
+            Avatar,
+            Avatar->GetActorForwardVector(),  // Direction
+            0.f,                               // OverrideRadius (0 = из DamageProfile)
+            GetAbilityLevel(),
+            bDrawDebugs);
         return;
     }
     
@@ -60,7 +65,9 @@ void UHR_Ability_Attack_JumpAttack::OnMontageCompleted()
 
 void UHR_Ability_Attack_JumpAttack::OnDamageNotify(FGameplayEventData /*Payload*/)
 {
-    ApplyAOE();
+    CombatModule->ApplyAOE(GetAbilitySystemComponentFromActorInfo(), GetAvatarActorFromActorInfo(),
+                               CachedTargetLocation, GetAbilityLevel());
+    EndAbilitySafe(false);
 }
 
 void UHR_Ability_Attack_JumpAttack::JumpStart()

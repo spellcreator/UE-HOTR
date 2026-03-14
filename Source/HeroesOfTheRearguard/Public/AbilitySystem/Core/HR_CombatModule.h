@@ -90,7 +90,8 @@ public:
 				  AActor* AvatarActor,
 				  const FVector& Direction,
 				  float OverrideRadius = 0.f,
-				  float Level);
+				  float Level = 1.f,
+				  bool bDrawDebug = false);
 
 	TArray<AActor*> FindTargetsInHitbox(
 				  AActor* AvatarActor,

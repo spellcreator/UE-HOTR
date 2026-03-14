@@ -1,8 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Core/HR_CombatAbility.h"
-#include "AbilitySystem/Core/HR_GameplayAbility.h"
+#include "AbilitySystem/Core/HR_UnitTargetAbility.h"
 #include "HR_Ability_AutoAttack.generated.h"
 
 /**
@@ -17,7 +16,7 @@
  *   - DamageProfile (урон, радиус, смещения)
  */
 UCLASS()
-class HEROESOFTHEREARGUARD_API UHR_Ability_AutoAttack : public UHR_CombatAbility
+class HEROESOFTHEREARGUARD_API UHR_Ability_AutoAttack : public UHR_UnitTargetAbility
 {
 	GENERATED_BODY()
 

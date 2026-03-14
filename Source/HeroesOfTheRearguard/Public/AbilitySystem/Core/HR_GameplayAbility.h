@@ -50,7 +50,7 @@ struct FHR_SetByCallerParam
     UPROPERTY(EditDefaultsOnly)
     FGameplayTag Tag;
 
-    UPROPERTY(EditDefaultsOnly)
+    UPROPERTY(EditDefaultsOnly, meta=(ClampMin="0"))
     float Magnitude = 0.f;
 };
 
@@ -144,7 +144,14 @@ protected:
     void ApplyEffectToTargets(
         const TArray<AActor*>& Targets,
         TSubclassOf<UGameplayEffect> Effect,
-        const TArray<FHR_SetByCallerParam>& SetByCallerParams = {});
+        const TArray<FHR_SetByCallerParam>& SetByCallerParams);
+    
+    void ApplyEffectToTargets(
+    const TArray<AActor*>& Targets,
+    TSubclassOf<UGameplayEffect> Effect)
+    {
+        ApplyEffectToTargets(Targets, Effect, {});
+    }
 
     // ─── Завершение ───────────────────────────────────────────────────────
     // Безопасное завершение: проверяет IsActive() перед вызовом EndAbility.

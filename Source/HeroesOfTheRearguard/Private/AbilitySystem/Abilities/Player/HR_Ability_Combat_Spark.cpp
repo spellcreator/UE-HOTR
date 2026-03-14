@@ -3,17 +3,13 @@
 
 #include "AbilitySystem/Abilities/Player/HR_Ability_Combat_Spark.h"
 
+#include "AbilitySystem/Core/HR_CombatModule.h"
 #include "GamePlayTags/HRTags.h"
 #include "Utils/HR_BlueprintLibrary.h"
 
 UHR_Ability_Combat_Spark::UHR_Ability_Combat_Spark()
 {
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-
-	FAbilityTriggerData TriggerData;
-	TriggerData.TriggerTag = HRTags::HRAbilities::DirectionalArc;
-	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
-	AbilityTriggers.Add(TriggerData);
+	SetTriggerTag(HRTags::HRAbilities::DirectionalArc);
 }
 
 void UHR_Ability_Combat_Spark::ActivateAbility(
@@ -45,9 +41,7 @@ void UHR_Ability_Combat_Spark::ActivateAbility(
 	{
 		Dir = Avatar->GetActorForwardVector().GetSafeNormal2D();
 	}
-
-	// Задаём направление хитбокса — ApplyAOE() подхватит автоматически
-	HitboxDirectionOverride = Dir;
+	
 
 	// ── 3. Поворачиваем персонажа ───────────────────────────────────────
 	RotateOwnerToDirection(Avatar, Dir);
@@ -70,7 +64,13 @@ void UHR_Ability_Combat_Spark::ActivateAbility(
 	}
 	else
 	{
-		ApplyAOE();
+		CombatModule->ApplyAOE(
+			GetAbilitySystemComponentFromActorInfo(),
+			Avatar,
+			Avatar->GetActorForwardVector(),  // Direction
+			0.f,                               // OverrideRadius (0 = из DamageProfile)
+			GetAbilityLevel(),
+			bDrawDebugs);
 		EndAbilitySafe(false);
 	}
 }
@@ -79,7 +79,13 @@ void UHR_Ability_Combat_Spark::ActivateAbility(
 
 void UHR_Ability_Combat_Spark::OnDamageNotify(FGameplayEventData /*Payload*/)
 {
-	ApplyAOE();
+	AActor* Avatar = GetAvatarActorFromActorInfo();
+	CombatModule->ApplyAOE(
+			GetAbilitySystemComponentFromActorInfo(),
+			Avatar,
+			Avatar->GetActorForwardVector(),  // Direction
+			0.f,                               // OverrideRadius (0 = из DamageProfile)
+			GetAbilityLevel());
 }
 
 void UHR_Ability_Combat_Spark::OnMontageCompleted()

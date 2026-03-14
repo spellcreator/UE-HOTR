@@ -6,7 +6,6 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
-#include "AbilitySystem/Core/Enums/HR_AbilityTargetingType.h"
 #include "GamePlayTags/HRTags.h"
 #include "Utils/HR_BlueprintLibrary.h"
 
@@ -22,10 +21,10 @@ void UHR_CombatModule::ApplyDamage(UAbilitySystemComponent* SourceASC, AActor* T
 }
 
 void UHR_CombatModule::ApplyAOE(UAbilitySystemComponent* SourceASC, AActor* AvatarActor, const FVector& Direction,
-	float OverrideRadius, float Level)
+float OverrideRadius, float Level, bool bDrawDebug)
 {
 	TArray<AActor*> Targets = FindTargetsInHitbox(
-		AvatarActor, Direction, OverrideRadius);
+		AvatarActor, Direction, OverrideRadius, bDrawDebug);
 
 	for (AActor* Target : Targets)
 	{

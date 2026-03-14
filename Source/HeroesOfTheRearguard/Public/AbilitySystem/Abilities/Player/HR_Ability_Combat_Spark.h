@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Core/HR_CombatAbility.h"
+#include "AbilitySystem/Core/HR_GroundTargetAbility.h"
+#include "AbilitySystem/Core/HR_InstantAbility.h"
 #include "HR_Ability_Combat_Spark.generated.h"
 
+class UHR_CombatModule;
 /**
  * UHR_Ability_Combat_Spark
  *
@@ -27,7 +29,7 @@
  *   - SparkMontage                 = анимация каста
  */
 UCLASS()
-class HEROESOFTHEREARGUARD_API UHR_Ability_Combat_Spark : public UHR_CombatAbility
+class HEROESOFTHEREARGUARD_API UHR_Ability_Combat_Spark : public UHR_GroundTargetAbility
 {
 	GENERATED_BODY()
 
@@ -41,6 +43,10 @@ public:
 		const FGameplayEventData* TriggerEventData) override;
 
 protected:
+	
+	UPROPERTY(EditDefaultsOnly, Instanced, Category="Combat")
+	TObjectPtr<UHR_CombatModule> CombatModule;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Spark|Animation")
 	TObjectPtr<UAnimMontage> SparkMontage;
 

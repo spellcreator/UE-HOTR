@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/Player/HR_Ability_Combat_BladeFury.h"
 
+#include "AbilitySystem/Core/HR_CombatModule.h"
 #include "Tasks/HR_AbilityTask_PeriodicAction.h"
 
 void UHR_Ability_Combat_BladeFury::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -23,7 +24,16 @@ void UHR_Ability_Combat_BladeFury::ActivateAbility(const FGameplayAbilitySpecHan
 
 void UHR_Ability_Combat_BladeFury::OnPeriodicDamage()
 {
-	ApplyAOE();
+	AActor* Avatar = GetAvatarActorFromActorInfo();
+	if (!CombatModule || !Avatar) return;
+
+	CombatModule->ApplyAOE(
+		GetAbilitySystemComponentFromActorInfo(),
+		Avatar,
+		Avatar->GetActorForwardVector(),  // Direction
+		0.f,                               // OverrideRadius (0 = из DamageProfile)
+		GetAbilityLevel(),
+		bDrawDebugs);
 }
 
 void UHR_Ability_Combat_BladeFury::OnDurationExpired()

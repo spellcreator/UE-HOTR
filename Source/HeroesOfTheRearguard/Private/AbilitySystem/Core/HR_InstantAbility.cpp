@@ -7,7 +7,7 @@
 
 UHR_InstantAbility::UHR_InstantAbility()
 {
-	TargetingData.TargetingType = EHR_AbilityTargetingType::Instant;
+	
 }
 
 bool UHR_InstantAbility::TryStartFromInput(UHR_AbilitySystemComponent* ASC, const FGameplayTag& AbilityTag,

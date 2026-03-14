@@ -1,4 +1,4 @@
 ﻿// 
 
 
-#include "AbilitySystem/Core/HR_AbilityTargetingType.h"
+#include "AbilitySystem/Core/Enums/HR_AbilityTargetingType.h"

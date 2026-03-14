@@ -8,7 +8,6 @@
 UHR_GroundTargetAbility::UHR_GroundTargetAbility()
 {
 	TargetingData.TargetingType = EHR_AbilityTargetingType::GroundTarget;
-	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 void UHR_GroundTargetAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

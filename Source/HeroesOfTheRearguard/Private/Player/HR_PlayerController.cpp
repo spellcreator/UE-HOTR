@@ -347,6 +347,7 @@ void AHR_PlayerController::FireBlast()
 	TryActivateOrBeginTargeting(HRTags::HRAbilities::FireBlast);
 }
 
+/*
 void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& AbilityTag)
 {
 	if (!isAlive()) return;
@@ -398,9 +399,10 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& Abili
 		ASC->TryActivateAbilityByTag(AbilityTag);
 	}
 }
+*/
 
 ///// Change After finish work 
-/* 
+
 void AHR_PlayerController::TryActivateOrBeginTargeting(
 	const FGameplayTag& AbilityTag)
 {
@@ -424,7 +426,7 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(
 	AbilityCDO->TryStartFromInput(
 		ASC, AbilityTag, TargetingComponent, UnitTargetingComponent);
 }
- */
+
 
 void AHR_PlayerController::ToggleInventory()
 {

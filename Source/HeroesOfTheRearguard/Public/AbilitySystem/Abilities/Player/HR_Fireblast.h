@@ -74,9 +74,4 @@ private:
 
 	// ── Helpers ───────────────────────────────────────────────────────────
 	
-	
-	// ── Cached data ──────────────────────────────────────────────────────
-
-	UPROPERTY()
-	TWeakObjectPtr<AActor> CachedTarget;
 };

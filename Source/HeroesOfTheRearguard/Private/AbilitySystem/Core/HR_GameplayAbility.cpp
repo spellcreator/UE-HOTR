@@ -127,7 +127,7 @@ void UHR_GameplayAbility::ApplyEffectToTarget(
         if (Param.Tag.IsValid())
         {
             UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
-                Spec, Param.Tag, Param.Magnitude);
+                Spec, Param.Tag, -Param.Magnitude);
         }
     }
 

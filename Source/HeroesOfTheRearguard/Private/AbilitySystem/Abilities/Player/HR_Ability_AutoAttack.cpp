@@ -5,7 +5,7 @@
 
 UHR_Ability_AutoAttack::UHR_Ability_AutoAttack()
 {
-    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+    
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

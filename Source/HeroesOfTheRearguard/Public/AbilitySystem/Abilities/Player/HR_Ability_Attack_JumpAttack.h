@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Core/HR_CombatAbility.h"
 #include "AbilitySystem/Core/HR_GroundTargetAbility.h"
 #include "HR_Ability_Attack_JumpAttack.generated.h"
 
+class UHR_CombatModule;
 class UCurveFloat;
 class UAnimMontage;
 class UAbilityTask_PlayMontageAndWait;
@@ -38,6 +38,10 @@ public:
 		const FGameplayEventData* TriggerEventData) override;
 
 protected:
+	
+	UPROPERTY(EditDefaultsOnly, Instanced, Category="Combat")
+	TObjectPtr<UHR_CombatModule> CombatModule;
+	
 	UPROPERTY(EditDefaultsOnly, Category="Crash|JumpAttack|Flight")
 	float FlightDuration = 0.5f;
 
