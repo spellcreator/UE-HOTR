@@ -65,8 +65,14 @@ void UHR_Ability_Attack_JumpAttack::OnMontageCompleted()
 
 void UHR_Ability_Attack_JumpAttack::OnDamageNotify(FGameplayEventData /*Payload*/)
 {
-    CombatModule->ApplyAOE(GetAbilitySystemComponentFromActorInfo(), GetAvatarActorFromActorInfo(),
-                               CachedTargetLocation, GetAbilityLevel());
+    AActor* Avatar = GetAvatarActorFromActorInfo();
+    CombatModule->ApplyAOE(
+            GetAbilitySystemComponentFromActorInfo(),
+            Avatar,
+            Avatar->GetActorForwardVector(),  // Direction
+            0.f,                               // OverrideRadius (0 = из DamageProfile)
+            GetAbilityLevel(),
+            bDrawDebugs);
     EndAbilitySafe(false);
 }
 

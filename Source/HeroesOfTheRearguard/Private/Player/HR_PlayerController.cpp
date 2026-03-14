@@ -412,19 +412,23 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(
 		CachedPlayerCharacter->GetAbilitySystemComponent());
 	if (!ASC) return;
 
-	// Отмена текущего таргетинга
 	if (TargetingComponent->IsTargeting())
 	{
 		TargetingComponent->CancelTargeting();
+		CurrentInputMode = EPlayerInputMode::Default;          // сброс
 		if (TargetingComponent->GetPendingAbilityTag() == AbilityTag) return;
 	}
 
-	// Способность сама решает что делать
 	UHR_GameplayAbility* AbilityCDO = ASC->FindAbilityByTag(AbilityTag);
 	if (!AbilityCDO) return;
 
 	AbilityCDO->TryStartFromInput(
 		ASC, AbilityTag, TargetingComponent, UnitTargetingComponent);
+
+	if (TargetingComponent->IsTargeting())
+	{
+		CurrentInputMode = EPlayerInputMode::Targeting;
+	}
 }
 
 

@@ -43,7 +43,6 @@ void UHR_Fireblast::ActivateAbility(
 		CombatModule->ApplyDamage(GetAbilitySystemComponentFromActorInfo(),
 						   CachedTarget.Get(), GetAbilityLevel());
 		
-		ApplyEffectToTarget(CachedTarget.Get(), DebuffEffect, { DebuffParam });
 		EndAbilitySafe(false);
 	}
 }
@@ -62,7 +61,6 @@ void UHR_Fireblast::OnDamageNotify(FGameplayEventData /*Payload*/)
 	}
 	CombatModule->ApplyDamage(GetAbilitySystemComponentFromActorInfo(),
 							   CachedTarget.Get(), GetAbilityLevel());
-	ApplyEffectToTarget(CachedTarget.Get(), DebuffEffect, { DebuffParam });
 	EndAbilitySafe(false);
 
 }

@@ -9,6 +9,7 @@
 #include "HR_CombatModule.generated.h"
 
 
+struct FHR_SetByCallerParam;
 class UGameplayEffect;
 class UAbilitySystemComponent;
 // ─── Профиль урона ────────────────────────────────────────────────────────────
@@ -68,6 +69,18 @@ struct HEROESOFTHEREARGUARD_API FHR_DamageProfile
     FVector BoxHalfExtent = FVector(100.f, 100.f, 100.f);
 };
 
+USTRUCT(BlueprintType)
+struct FHR_DebuffEntry
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> Effect;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FHR_SetByCallerParam> SetByCallerParams;
+};
+
 /**
  * 
  */
@@ -98,6 +111,16 @@ public:
 				  const FVector& Direction,
 				  float OverrideRadius = 0.f,
 				  bool bDrawDebug = false) const;
+	
+	void ApplyDebuffToTarget(
+	UAbilitySystemComponent* SourceASC,
+		UAbilitySystemComponent* TargetASC,
+		float Level);
+	
+protected:
+	
+	UPROPERTY(EditDefaultsOnly, Category="Debuffs")
+	TArray<FHR_DebuffEntry> Debuffs;
 	
 private:
 	// Применяет DamageEffect с SetByCaller к одному ASC
