@@ -85,12 +85,3 @@ void UHR_AbilitySystemComponent::HandleAutoActivateAbilities(const FGameplayAbil
 		}
 	}
 }
-
-bool UHR_AbilitySystemComponent::RequiresTargeting(const FGameplayTag& Tag) const
-{
-	if (UHR_GameplayAbility* Ability = FindAbilityByTag(Tag))
-	{
-		return Ability->RequiresTargeting();
-	}
-	return false;
-}

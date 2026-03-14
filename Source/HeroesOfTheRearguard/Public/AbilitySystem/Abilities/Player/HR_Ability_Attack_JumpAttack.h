@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Core/HR_CombatAbility.h"
+#include "AbilitySystem/Core/HR_GroundTargetAbility.h"
 #include "HR_Ability_Attack_JumpAttack.generated.h"
 
 class UCurveFloat;
@@ -23,7 +24,7 @@ class UHR_AbilityTask_JumpToLocation;
  *   - DamageEffect, DamageProfile
  */
 UCLASS()
-class HEROESOFTHEREARGUARD_API UHR_Ability_Attack_JumpAttack : public UHR_CombatAbility
+class HEROESOFTHEREARGUARD_API UHR_Ability_Attack_JumpAttack : public UHR_GroundTargetAbility
 {
 	GENERATED_BODY()
 

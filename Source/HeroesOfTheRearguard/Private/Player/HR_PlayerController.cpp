@@ -399,6 +399,33 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(const FGameplayTag& Abili
 	}
 }
 
+///// Change After finish work 
+/* 
+void AHR_PlayerController::TryActivateOrBeginTargeting(
+	const FGameplayTag& AbilityTag)
+{
+	if (!isAlive() || !CachedPlayerCharacter) return;
+
+	UHR_AbilitySystemComponent* ASC = Cast<UHR_AbilitySystemComponent>(
+		CachedPlayerCharacter->GetAbilitySystemComponent());
+	if (!ASC) return;
+
+	// Отмена текущего таргетинга
+	if (TargetingComponent->IsTargeting())
+	{
+		TargetingComponent->CancelTargeting();
+		if (TargetingComponent->GetPendingAbilityTag() == AbilityTag) return;
+	}
+
+	// Способность сама решает что делать
+	UHR_GameplayAbility* AbilityCDO = ASC->FindAbilityByTag(AbilityTag);
+	if (!AbilityCDO) return;
+
+	AbilityCDO->TryStartFromInput(
+		ASC, AbilityTag, TargetingComponent, UnitTargetingComponent);
+}
+ */
+
 void AHR_PlayerController::ToggleInventory()
 {
 	if (!InventoryWidget) return;

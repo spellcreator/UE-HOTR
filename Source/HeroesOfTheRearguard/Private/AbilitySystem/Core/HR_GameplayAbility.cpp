@@ -6,8 +6,14 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "GameplayEffect.h"
+#include "GamePlayTags/HRTags.h"
 
 // ─────────────────────────────────────────────────────────────────────────────
+
+UHR_GameplayAbility::UHR_GameplayAbility()
+{
+    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
 
 void UHR_GameplayAbility::ActivateAbility(
     const FGameplayAbilitySpecHandle Handle,
@@ -26,9 +32,23 @@ void UHR_GameplayAbility::ActivateAbility(
 #endif
 }
 
+bool UHR_GameplayAbility::TryStartFromInput(UHR_AbilitySystemComponent* ASC, const FGameplayTag& AbilityTag,
+    UHR_AbilityTargetingComponent* TargetingComp, UHR_UnitTargetingComponent* UnitTargetComp)
+{
+    return false;
+}
+
 // ─── Монтаж ──────────────────────────────────────────────────────────────────
 // ReadyForActivation() НЕ вызывается внутри.
 // Правильный порядок: Create → Bind delegates → ReadyForActivation()
+
+void UHR_GameplayAbility::SetTriggerTag(const FGameplayTag& Tag)
+{
+    FAbilityTriggerData TriggerData;
+    TriggerData.TriggerTag = Tag;
+    TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+    AbilityTriggers.Add(TriggerData);
+}
 
 UAbilityTask_PlayMontageAndWait* UHR_GameplayAbility::PlayMontage(
     UAnimMontage* Montage,
@@ -54,9 +74,18 @@ UAbilityTask_WaitGameplayEvent* UHR_GameplayAbility::WaitGameplayEvent(
         this, EventTag, nullptr, bOnlyTriggerOnce, true);
 }
 
+UAbilityTask_WaitGameplayEvent* UHR_GameplayAbility::ListenForDamageNotify(bool bOnlyOnce)
+{
+    UAbilityTask_WaitGameplayEvent* Task =
+    WaitGameplayEvent(HRTags::HRAbilities::Notify::DamageNotify, bOnlyOnce);
+    Task->ReadyForActivation();
+    return Task;
+}
+
+
 // ─── Эффекты ─────────────────────────────────────────────────────────────────
 
-FActiveGameplayEffectHandle UHR_GameplayAbility::ApplyEffect(
+FActiveGameplayEffectHandle UHR_GameplayAbility::ApplyEffectToSelf(
     TSubclassOf<UGameplayEffect> EffectClass, float Level)
 {
     UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
@@ -71,47 +100,51 @@ FActiveGameplayEffectHandle UHR_GameplayAbility::ApplyEffect(
     return ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
 }
 
-void UHR_GameplayAbility::ApplyEffectToTargets(
-    TSubclassOf<UGameplayEffect> EffectClass,
-    const TArray<AActor*>& Targets,
-    float Level)
+void UHR_GameplayAbility::ApplyEffectToTarget(
+    AActor* Target,
+    TSubclassOf<UGameplayEffect> Effect,
+    const TArray<FHR_SetByCallerParam>& SetByCallerParams)
 {
-    if (!EffectClass || Targets.IsEmpty()) return;
+    if (!Effect || !IsValid(Target)) return;
 
-    UAbilitySystemComponent* InstigatorASC = GetAbilitySystemComponentFromActorInfo();
-    if (!InstigatorASC) return;
+    UAbilitySystemComponent* TargetASC =
+        UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target);
+    if (!TargetASC) return;
 
-    FGameplayEffectContextHandle Context = InstigatorASC->MakeEffectContext();
-    Context.AddInstigator(GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo());
+    UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+    if (!SourceASC) return;
 
-    FGameplayEffectSpecHandle Spec = InstigatorASC->MakeOutgoingSpec(EffectClass, Level, Context);
+    FGameplayEffectContextHandle Ctx = SourceASC->MakeEffectContext();
+    Ctx.AddInstigator(GetAvatarActorFromActorInfo(), GetAvatarActorFromActorInfo());
+
+    FGameplayEffectSpecHandle Spec =
+        SourceASC->MakeOutgoingSpec(Effect, GetAbilityLevel(), Ctx);
     if (!Spec.IsValid()) return;
 
+    // Прокидываем все SetByCaller
+    for (const FHR_SetByCallerParam& Param : SetByCallerParams)
+    {
+        if (Param.Tag.IsValid())
+        {
+            UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
+                Spec, Param.Tag, Param.Magnitude);
+        }
+    }
+
+    SourceASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
+}
+
+void UHR_GameplayAbility::ApplyEffectToTargets(
+    const TArray<AActor*>& Targets,
+    TSubclassOf<UGameplayEffect> Effect,
+    const TArray<FHR_SetByCallerParam>& SetByCallerParams)
+{
     for (AActor* Target : Targets)
     {
-        if (!IsValid(Target)) continue;
-
-        if (UAbilitySystemComponent* TargetASC =
-            UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target))
-        {
-            InstigatorASC->ApplyGameplayEffectSpecToTarget(*Spec.Data.Get(), TargetASC);
-        }
+        ApplyEffectToTarget(Target, Effect, SetByCallerParams);
     }
 }
 
-// ─── Извлечение цели ─────────────────────────────────────────────────────────
-
-bool UHR_GameplayAbility::ExtractTargetLocation(
-    const FGameplayEventData* TriggerEventData, FVector& OutLocation) const
-{
-    if (!TriggerEventData || !TriggerEventData->TargetData.IsValid(0)) return false;
-
-    const FGameplayAbilityTargetData* Data = TriggerEventData->TargetData.Get(0);
-    if (!Data || !Data->HasEndPoint()) return false;
-
-    OutLocation = Data->GetEndPoint();
-    return true;
-}
 
 // ─── Завершение ──────────────────────────────────────────────────────────────
 

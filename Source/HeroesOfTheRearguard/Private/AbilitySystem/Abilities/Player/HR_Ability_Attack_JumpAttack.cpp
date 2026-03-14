@@ -6,7 +6,6 @@
 
 UHR_Ability_Attack_JumpAttack::UHR_Ability_Attack_JumpAttack()
 {
-    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 
     FAbilityTriggerData TriggerData;
     TriggerData.TriggerTag = HRTags::HRAbilities::JumpAttack;

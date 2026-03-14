@@ -1,11 +1,16 @@
-﻿#pragma once
+﻿// 
+
+#pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystem/Core//HR_GameplayAbility.h"
 #include "GameplayTagContainer.h"
-#include "HR_HitboxShape.h"
-#include "HR_CombatAbility.generated.h"
+#include "Enums/HR_HitboxShape.h"
+#include "UObject/Object.h"
+#include "HR_CombatModule.generated.h"
 
+
+class UGameplayEffect;
+class UAbilitySystemComponent;
 // ─── Профиль урона ────────────────────────────────────────────────────────────
 // Всё что нужно для нанесения урона описывается здесь.
 // Настраивается в Blueprint-дефолтах способности.
@@ -64,58 +69,38 @@ struct HEROESOFTHEREARGUARD_API FHR_DamageProfile
 };
 
 /**
- * UHR_CombatAbility
- *
- * Базовый класс для боевых способностей, наносящих урон.
- * Содержит DamageEffect + DamageProfile и хелперы для нанесения урона:
- *   ApplyDamage(Target)    — точечный удар по одному актору
- *   ApplyAOE()             — AOE по всем противникам в хитбоксе
- *
- * Для направленных способностей (Cone/Box):
- *   Задайте HitboxDirectionOverride перед вызовом ApplyAOE().
- *   Если ZeroVector — используется ActorForwardVector.
+ * 
  */
-UCLASS(Abstract)
-class HEROESOFTHEREARGUARD_API UHR_CombatAbility : public UHR_GameplayAbility
+UCLASS(DefaultToInstanced, EditInlineNew)
+class HEROESOFTHEREARGUARD_API UHR_CombatModule : public UObject
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
+	
+public:
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	TSubclassOf<UGameplayEffect> DamageEffect;
 
-protected:
+	UPROPERTY(EditDefaultsOnly, Category="Damage")
+	FHR_DamageProfile DamageProfile;
 
-    // GE, которое применяется при ударе. Должен содержать SetByCaller модификатор урона.
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Combat|Damage")
-    TSubclassOf<UGameplayEffect> DamageEffect;
+	void ApplyDamage(UAbilitySystemComponent* SourceASC,
+					 AActor* Target, float Level = 1.f);
 
-    // Параметры удара: урон, хитбокс, теги
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|Combat|Damage")
-    FHR_DamageProfile DamageProfile;
+	void ApplyAOE(UAbilitySystemComponent* SourceASC,
+				  AActor* AvatarActor,
+				  const FVector& Direction,
+				  float OverrideRadius = 0.f,
+				  float Level);
 
-    /**
-     * Направление хитбокса (для Cone и Box).
-     * ZeroVector = использовать ActorForwardVector.
-     * Задавать перед вызовом ApplyAOE() / FindTargetsInHitbox().
-     */
-    UPROPERTY(BlueprintReadWrite, Category="Crash|Combat|Runtime")
-    FVector HitboxDirectionOverride = FVector::ZeroVector;
-
-    // ─── Helpers ──────────────────────────────────────────────────────────
-
-    // Нанести урон конкретному актору
-    UFUNCTION(BlueprintCallable, Category="Ability|Combat")
-    void ApplyDamage(AActor* Target);
-
-    // Найти акторов в хитбоксе и нанести урон всем
-    UFUNCTION(BlueprintCallable, Category="Ability|Combat")
-    void ApplyAOE();
-
-    // Найти акторов в хитбоксе (без нанесения урона — для визуала и проверок)
-    UFUNCTION(BlueprintCallable, Category="Ability|Combat")
-    TArray<AActor*> FindTargetsInHitbox() const;
-
+	TArray<AActor*> FindTargetsInHitbox(
+				  AActor* AvatarActor,
+				  const FVector& Direction,
+				  float OverrideRadius = 0.f,
+				  bool bDrawDebug = false) const;
+	
 private:
-    // Применяет DamageEffect с SetByCaller к одному ASC
-    void ApplyDamageEffect(UAbilitySystemComponent* TargetASC);
-
-    // Получить актуальное направление (override или ActorForward)
-    FVector GetHitboxDirection() const;
+	// Применяет DamageEffect с SetByCaller к одному ASC
+	void ApplyDamageEffect(UAbilitySystemComponent* SourceASC,
+	UAbilitySystemComponent* TargetASC, float Level);
+	
 };

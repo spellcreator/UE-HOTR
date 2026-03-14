@@ -23,7 +23,6 @@ public:
 	
 	bool TryActivateAbilityByTag(const FGameplayTag& Tag);
 	UHR_GameplayAbility* FindAbilityByTag(const FGameplayTag& Tag) const;
-	bool RequiresTargeting(const FGameplayTag& Tag) const;
 	
 private:
 	
