@@ -25,25 +25,13 @@ public:
 
 protected:
 	
-	// New Combat Logic
+	// ── Combat Logic ──────────────────────────────────────────────────────────
 	UPROPERTY(EditDefaultsOnly, Instanced, Category="Combat")
 	TObjectPtr<UHR_CombatModule> CombatModule;
+	
 	// ── Анимация ──────────────────────────────────────────────────────────
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|UnitTargeted|Animation")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|FireBlast")
 	TObjectPtr<UAnimMontage> AbilityMontage;
-	
-	// ── Дальность и конус ─────────────────────────────────────────────────
-
-	/** Максимальная дальность до цели (в юнитах). Если 0 — без ограничения. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|UnitTargeted|Range")
-	float AbilityRange = 800.f;
-
-	/** Половина угла конуса перед персонажем (45 = конус 90°).
-	 *  Если враг внутри — кастуем сразу. Если снаружи — разворачиваемся. */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Crash|UnitTargeted|Range",
-		meta=(ClampMin="5", ClampMax="180"))
-	float FacingHalfAngleDeg = 45.f;
-	
 
 
 private:

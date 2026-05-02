@@ -6,6 +6,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "HR_BlueprintLibrary.generated.h"
 
+struct FGameplayTag;
+class UGameplayEffect;
 /**
  * 
  */

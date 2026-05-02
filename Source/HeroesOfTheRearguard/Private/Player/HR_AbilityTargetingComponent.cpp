@@ -40,7 +40,7 @@ void UHR_AbilityTargetingComponent::BeginTargeting(const FGameplayTag& AbilityTa
     PendingAbilityTag = AbilityTag;
     
     CurrentTargetingType = Ability->TargetingData.TargetingType;
-    CurrentTargetingRadius = Ability->TargetingData.AOERadius;
+    CurrentTargetingRadius = Ability->TargetingData.DecalRadius;
     CurrentTargetingMaxCastRange = Ability->TargetingData.AbilityMaxRange;
     CurrentTargetingMinCastRange = Ability->TargetingData.AbilityMinRange;
     CurrentConeHalfAngle = Ability->TargetingData.ConeHalfAngleDeg;

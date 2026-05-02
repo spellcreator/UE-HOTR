@@ -68,7 +68,7 @@ private:
 	TObjectPtr<UHR_CameraInputComponent> CameraInputComponent;
 
 	UPROPERTY(VisibleAnywhere, Category="Crash|PlayerController|Targeting")
-	TObjectPtr<UHR_AbilityTargetingComponent> TargetingComponent;
+	TObjectPtr<UHR_AbilityTargetingComponent> AbilityTargetingComponent;
 	
 	UPROPERTY(VisibleAnywhere, Category="Crash|PlayerController|Target")
 	TObjectPtr<UHR_UnitTargetingComponent> UnitTargetingComponent;

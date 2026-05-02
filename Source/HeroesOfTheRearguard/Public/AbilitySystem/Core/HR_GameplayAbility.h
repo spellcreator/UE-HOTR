@@ -18,14 +18,18 @@ struct FAbilityTargetingData
     EHR_AbilityTargetingType TargetingType = EHR_AbilityTargetingType::Instant;
 
     UPROPERTY(EditDefaultsOnly, meta=(
-    EditCondition="TargetingType != EHR_AbilityTargetingType::Instant",
+    EditCondition="TargetingType == EHR_AbilityTargetingType::GroundTarget",
     EditConditionHides))
-    float AOERadius = 0.f;
+    float DecalRadius = 0.f;
 
     UPROPERTY(EditDefaultsOnly, meta=(
     EditCondition="TargetingType != EHR_AbilityTargetingType::Instant",
     EditConditionHides))
     float AbilityMaxRange = 0.f;
+    
+    UPROPERTY(EditDefaultsOnly, meta=(EditCondition="TargetingType == EHR_AbilityTargetingType::UnitTarget",
+    EditConditionHides))
+    float ConeToRotate = 45.f;
 
     UPROPERTY(EditDefaultsOnly, meta=(
     EditCondition="TargetingType != EHR_AbilityTargetingType::Instant",

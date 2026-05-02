@@ -18,7 +18,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAttributeChange, FGameplayAttr
 UCLASS(BlueprintType, meta = (ExposedAsyncProxy = AsyncTask))
 class HEROESOFTHEREARGUARD_API UHR_AttributeChangeTask : public UBlueprintAsyncActionBase
 {
-	GENERATED_BODY()
+	GENERATED_BODY()	
 	
 public:
 	UPROPERTY(BlueprintAssignable)

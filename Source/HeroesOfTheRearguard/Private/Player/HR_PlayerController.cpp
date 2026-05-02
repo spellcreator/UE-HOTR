@@ -79,7 +79,7 @@ void AHR_PlayerController::BeginPlay()
 
 	// --- Fetch components from Character (they already exist as subobjects) ---
 	CameraInputComponent   = CachedPlayerCharacter->GetCameraInputComponent();
-	TargetingComponent     = CachedPlayerCharacter->GetAbilityTargetingComponent();
+	AbilityTargetingComponent     = CachedPlayerCharacter->GetAbilityTargetingComponent();
 	UnitTargetingComponent = CachedPlayerCharacter->GetUnitTargetingComponent();
 
 	// Init camera component if needed
@@ -89,10 +89,10 @@ void AHR_PlayerController::BeginPlay()
 	}
 
 	// Bind targeting delegates
-	if (TargetingComponent)
+	if (AbilityTargetingComponent)
 	{
-		TargetingComponent->OnTargetingConfirmed.AddDynamic(this, &AHR_PlayerController::OnTargetingConfirmed);
-		TargetingComponent->OnTargetingCancelled.AddDynamic(this, &AHR_PlayerController::OnTargetingCancelled);
+		AbilityTargetingComponent->OnTargetingConfirmed.AddDynamic(this, &AHR_PlayerController::OnTargetingConfirmed);
+		AbilityTargetingComponent->OnTargetingCancelled.AddDynamic(this, &AHR_PlayerController::OnTargetingCancelled);
 	}
 
 	// Bind unit targeting delegates
@@ -230,16 +230,16 @@ void AHR_PlayerController::Look(const FInputActionValue& Value)
 
 void AHR_PlayerController::Zoom(const FInputActionValue& Value)
 {
-	if (!isAlive()) return;
-	if (!CameraBoom) return;
-
-	const float Axis = Value.Get<float>();
-	const float NewLen = FMath::Clamp(
-		CameraBoom->TargetArmLength - Axis * ZoomSpeed,
-		ArmMin,
-		ArmMax
-	);
-	CameraBoom->TargetArmLength = NewLen;
+		if (!isAlive()) return;
+		if (!CameraBoom) return;
+	
+		const float Axis = Value.Get<float>();
+		const float NewLen = FMath::Clamp(
+			CameraBoom->TargetArmLength - Axis * ZoomSpeed,
+			ArmMin,
+			ArmMax
+		);
+		CameraBoom->TargetArmLength = NewLen;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -249,15 +249,15 @@ void AHR_PlayerController::Zoom(const FInputActionValue& Value)
 void AHR_PlayerController::ConfirmTargeting()
 {
 	CurrentInputMode = EPlayerInputMode::Default;
-	if (!TargetingComponent->IsTargeting()) return;
-	TargetingComponent->ConfirmTargeting();
+	if (!AbilityTargetingComponent->IsTargeting()) return;
+	AbilityTargetingComponent->ConfirmTargeting();
 }
 
 void AHR_PlayerController::CancelCurrentTargeting()
 {
 	CurrentInputMode = EPlayerInputMode::Default;
-	if (TargetingComponent->IsTargeting())
-		TargetingComponent->CancelTargeting();
+	if (AbilityTargetingComponent->IsTargeting())
+		AbilityTargetingComponent->CancelTargeting();
 }
 
 void AHR_PlayerController::OnTargetingConfirmed(FVector TargetLocation)
@@ -266,7 +266,7 @@ void AHR_PlayerController::OnTargetingConfirmed(FVector TargetLocation)
 		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
 	if (!ASC) return;
 
-	const FGameplayTag Tag = TargetingComponent->GetPendingAbilityTag();
+	const FGameplayTag Tag = AbilityTargetingComponent->GetPendingAbilityTag();
 
 	/*// Проверяем что тег валиден
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, 
@@ -412,20 +412,20 @@ void AHR_PlayerController::TryActivateOrBeginTargeting(
 		CachedPlayerCharacter->GetAbilitySystemComponent());
 	if (!ASC) return;
 
-	if (TargetingComponent->IsTargeting())
+	if (AbilityTargetingComponent->IsTargeting())
 	{
-		TargetingComponent->CancelTargeting();
+		AbilityTargetingComponent->CancelTargeting();
 		CurrentInputMode = EPlayerInputMode::Default;          // сброс
-		if (TargetingComponent->GetPendingAbilityTag() == AbilityTag) return;
+		if (AbilityTargetingComponent->GetPendingAbilityTag() == AbilityTag) return;
 	}
 
 	UHR_GameplayAbility* AbilityCDO = ASC->FindAbilityByTag(AbilityTag);
 	if (!AbilityCDO) return;
 
 	AbilityCDO->TryStartFromInput(
-		ASC, AbilityTag, TargetingComponent, UnitTargetingComponent);
+		ASC, AbilityTag, AbilityTargetingComponent, UnitTargetingComponent);
 
-	if (TargetingComponent->IsTargeting())
+	if (AbilityTargetingComponent->IsTargeting())
 	{
 		CurrentInputMode = EPlayerInputMode::Targeting;
 	}
